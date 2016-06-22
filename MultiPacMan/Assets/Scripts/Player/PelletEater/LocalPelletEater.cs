@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class LocalPelletEater : PelletEater {
-	
-	protected override void EatPellet(GameObject pellet) {
-		Destroy(pellet);
+namespace MultiPacMan.Player
+{
+	public class LocalPelletEater : PelletEater {
+		
+		protected override void EatPellet(GameObject pellet) {
+			Destroy(pellet);
+		}
 	}
 }
