@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
+using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player.Collision
 {
 	public class PelletCollisionDetector : MonoBehaviour {
 
-		private GameObject pellet = null;
+		private PelletBehaviour pellet = null;
 
 		public bool IsCollidingWithPellet() {
 			return (pellet != null);
 		}
 
-		public GameObject GetPellet() {
+		public PelletBehaviour GetPellet() {
 			return pellet;
 		}
 
@@ -25,7 +26,7 @@ namespace MultiPacMan.Player.Collision
 
 		private void DetectCollision(Collider2D other) {
 			if (IsCollidingWithPellet(other)) {
-				pellet = other.gameObject;
+				pellet = other.gameObject.GetComponent<PelletBehaviour>();
 			}
 		}
 
@@ -36,7 +37,7 @@ namespace MultiPacMan.Player.Collision
 		}
 
 		private bool IsCollidingWithPellet(Collider2D other) {
-			return other.tag == "Pellet";
+			return other.tag == "Pellet" && other.gameObject.GetComponent<PelletBehaviour>() != null;
 		}
 	}
 }

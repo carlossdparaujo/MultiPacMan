@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using MultiPacMan.Player.Collision;
+using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
@@ -19,6 +20,6 @@ namespace MultiPacMan.Player
 			}
 		}
 
-		protected abstract void EatPellet(GameObject pellet);
+		protected abstract void EatPellet(PelletBehaviour pellet);
 	}
 }

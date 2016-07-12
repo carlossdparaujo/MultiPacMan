@@ -13,7 +13,14 @@ public class GameController : Photon.PunBehaviour {
 
 	public override void OnJoinedRoom() {
 		base.OnJoinedRoom();
+		CreatePellet();
 		CreatePlayer();
+	}
+
+	private void CreatePellet() {
+		if (PhotonNetwork.isMasterClient) {
+			PhotonNetwork.InstantiateSceneObject("Pellet", new Vector3(1.0f, 1.0f, 0.0f), Quaternion.identity, 0, null);
+		}
 	}
 
 	private void CreatePlayer() {
