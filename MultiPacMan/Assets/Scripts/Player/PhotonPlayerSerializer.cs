@@ -1,35 +1,42 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PhotonPlayerSerializer : MonoBehaviour, IPunObservable {
+namespace MultiPacMan.Player
+{
+	[RequireComponent(typeof(PlayerBehaviour))]
+	public class PhotonPlayerSerializer : MonoBehaviour, IPunObservable {
 
-	private Vector2 playerPosition;
-	public Vector2 PlayerPosition {
-		get {
-			return playerPosition;
+		private PlayerBehaviour player = null;
+		private Rigidbody2D rb = null;
+
+		void Start() {
+			rb = GetComponent<Rigidbody2D>();
+			player = GetComponent<PlayerBehaviour>();
 		}
-	}
 
-	private Rigidbody2D rb;
+		public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+			if (stream.isWriting) {
+				if (rb == null) {
+					return;
+				}
 
-	void Start() {
-		rb = GetComponent<Rigidbody2D>();
-	}
+				stream.SendNext(CompressPosition(rb.position));
+			} else {
+				if (player == null) {
+					return;
+				}
 
-	public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
-		if (stream.isWriting) {
-			stream.SendNext(CompressPosition(rb.position));
-		} else {
-			playerPosition = DecompressPosition(stream.ReceiveNext());
+				player.PlayerPosition = DecompressPosition(stream.ReceiveNext());
+			}
 		}
-	}
 
-	// Será que não é melhor fazer T ao invés de object?
-	protected virtual object CompressPosition(Vector2 data) {
-		return data;
-	}
+		// Será que não é melhor fazer T ao invés de object?
+		protected virtual object CompressPosition(Vector2 data) {
+			return data;
+		}
 
-	protected virtual Vector2 DecompressPosition(object data) {
-		return (Vector2) data;
+		protected virtual Vector2 DecompressPosition(object data) {
+			return (Vector2) data;
+		}
 	}
 }
