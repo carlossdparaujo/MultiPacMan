@@ -1,10 +1,14 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MultiPacMan.Player.InputInterpreter
+namespace MultiPacMan.Player.Inputs
 {
-	public class DesktopMovementInputInterpreter : MovementInputInterpreter {
-		
+	public class DesktopInputInterpreter : InputInterpreter {
+
+		public override bool IsTurboOn() {
+			return Input.GetKey(KeyCode.Space);
+		}
+
 		public override Vector3 GetMovementDirection() {
 			float xMovement = 0.0f;
 			float yMovement = 0.0f;

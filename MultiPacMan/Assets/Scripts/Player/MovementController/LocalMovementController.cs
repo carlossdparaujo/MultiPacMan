@@ -1,25 +1,28 @@
 ﻿using System;
 using UnityEngine;
-using MultiPacMan.Player.InputInterpreter;
+using MultiPacMan.Player.Inputs;
 
 namespace MultiPacMan.Player
 {
-	[RequireComponent(typeof(MovementInputInterpreter))]
+	[RequireComponent(typeof(InputInterpreter))]
 	public class LocalMovementController : MovementController {
 		
 		[SerializeField]
 		private float speed = 5.0f;
+		[SerializeField]
+		private float turboSpeed = 8.0f;
 
 		private Vector3 currentVelocity = Vector3.zero;
-		private MovementInputInterpreter inputInterpreter;
+		private InputInterpreter inputInterpreter;
 
 		public override void Start() {
 			base.Start();
-			inputInterpreter = GetComponent<MovementInputInterpreter>();
+			inputInterpreter = GetComponent<InputInterpreter>();
 		}
 
 		void FixedUpdate() {
-			currentVelocity = inputInterpreter.GetMovementDirection()*speed*Time.fixedDeltaTime;
+			float currentSpeed = inputInterpreter.IsTurboOn() ? turboSpeed : speed;
+			currentVelocity = inputInterpreter.GetMovementDirection()*currentSpeed*Time.fixedDeltaTime;
 		}
 
 		void Update() {

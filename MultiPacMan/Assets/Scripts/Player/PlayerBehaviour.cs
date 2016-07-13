@@ -5,6 +5,7 @@ namespace MultiPacMan.Player
 {
 	public class PlayerBehaviour : MonoBehaviour {
 
+		[SerializeField]
 		private Vector2 playerPosition;
 		public Vector2 PlayerPosition {
 			get {
@@ -12,6 +13,17 @@ namespace MultiPacMan.Player
 			}
 			set {
 				playerPosition = value;
+			}
+		}
+
+		[SerializeField]
+		private bool isTurboOn;
+		public bool IsTurboOn {
+			get {
+				return isTurboOn;
+			}
+			set {
+				isTurboOn = value;
 			}
 		}
 	}

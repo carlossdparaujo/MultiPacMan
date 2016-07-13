@@ -7,26 +7,22 @@ namespace MultiPacMan.Player
 	public class PhotonPlayerSerializer : MonoBehaviour, IPunObservable {
 
 		private PlayerBehaviour player = null;
-		private Rigidbody2D rb = null;
 
 		void Start() {
-			rb = GetComponent<Rigidbody2D>();
 			player = GetComponent<PlayerBehaviour>();
 		}
 
 		public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+			if (player == null) {
+				return;
+			}
+
 			if (stream.isWriting) {
-				if (rb == null) {
-					return;
-				}
-
-				stream.SendNext(CompressPosition(rb.position));
+				stream.SendNext(CompressPosition(player.PlayerPosition));
+				stream.SendNext(CompressTurboFlag(player.IsTurboOn));
 			} else {
-				if (player == null) {
-					return;
-				}
-
 				player.PlayerPosition = DecompressPosition(stream.ReceiveNext());
+				player.IsTurboOn = DecompressTurboFlag(stream.ReceiveNext());
 			}
 		}
 
@@ -37,6 +33,14 @@ namespace MultiPacMan.Player
 
 		protected virtual Vector2 DecompressPosition(object data) {
 			return (Vector2) data;
+		}
+
+		protected virtual object CompressTurboFlag(bool data) {
+			return data;
+		}
+
+		protected virtual bool DecompressTurboFlag(object data) {
+			return (bool) data;
 		}
 	}
 }

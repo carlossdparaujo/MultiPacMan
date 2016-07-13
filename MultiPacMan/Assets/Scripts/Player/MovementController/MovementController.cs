@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using MultiPacMan.Player.InputInterpreter;
+using MultiPacMan.Player.Inputs;
 
 namespace MultiPacMan.Player
 {
