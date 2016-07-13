@@ -1,9 +1,11 @@
 ﻿using System;
 using UnityEngine;
 using MultiPacMan.Player.Inputs;
+using MultiPacMan.Player.Turbo;
 
 namespace MultiPacMan.Player
 {
+	[RequireComponent(typeof(TurboController))]
 	[RequireComponent(typeof(InputInterpreter))]
 	public class LocalMovementController : MovementController {
 		
@@ -14,14 +16,16 @@ namespace MultiPacMan.Player
 
 		private Vector3 currentVelocity = Vector3.zero;
 		private InputInterpreter inputInterpreter;
+		private TurboController turboController;
 
 		public override void Start() {
 			base.Start();
 			inputInterpreter = GetComponent<InputInterpreter>();
+			turboController = GetComponent<TurboController>();
 		}
 
 		void FixedUpdate() {
-			float currentSpeed = inputInterpreter.IsTurboOn() ? turboSpeed : speed;
+			float currentSpeed = turboController.IsTurboOn ? turboSpeed : speed;
 			currentVelocity = inputInterpreter.GetMovementDirection()*currentSpeed*Time.fixedDeltaTime;
 		}
 
