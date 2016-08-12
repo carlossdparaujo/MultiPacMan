@@ -10,6 +10,7 @@ namespace MultiPacMan.Player
 
 			if (IsMine()) {
 				player = this.gameObject.AddComponent<PhotonPlayerBehaviour>();
+				Camera.main.GetComponent<FollowPlayer>().Follow(this.gameObject);
 			} else {
 				player = AddNetworkedPlayer();
 			}
