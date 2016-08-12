@@ -9,6 +9,10 @@ namespace MultiPacMan.Player
 		protected override bool IsMine() {
 			return this.GetComponent<PhotonView>().isMine;
 		}
+
+		protected override IPlayer AddNetworkedPlayer() {
+			return this.gameObject.AddComponent<PhotonNetworkedPlayerBehaviour>();
+		}
 	}
 }
 

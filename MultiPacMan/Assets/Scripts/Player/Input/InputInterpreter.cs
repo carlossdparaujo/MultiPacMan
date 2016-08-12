@@ -5,6 +5,6 @@ namespace MultiPacMan.Player.Inputs
 {
 	public abstract class InputInterpreter : MonoBehaviour {
 		public abstract bool IsTurboOn();
-		public abstract Vector3 GetMovementDirection();
+		public abstract Vector2 GetMovementDirection();
 	}
 }

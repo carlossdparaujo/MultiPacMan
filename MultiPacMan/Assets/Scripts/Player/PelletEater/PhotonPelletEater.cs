@@ -4,10 +4,11 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class RegularPelletEater : PelletEater {
-		
+	public class PhotonPelletEater : PelletEater {
+
 		protected override void EatPellet(PelletBehaviour pellet) {
-			pellet.Dispose();
+			PhotonNetwork.Destroy(pellet.gameObject);
 		}
 	}
 }
+

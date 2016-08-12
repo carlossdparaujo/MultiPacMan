@@ -5,18 +5,21 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	[RequireComponent(typeof(PelletCollisionDetector))]
 	public abstract class PelletEater : MonoBehaviour {
 
-		private PelletCollisionDetector detector;
+		public delegate bool IsCollidingWithPellet();
+		public IsCollidingWithPellet collisionDelegate;
 
-		void Start() {
-			detector = GetComponent<PelletCollisionDetector>();
-		}
+		public delegate PelletBehaviour GetPellet();
+		public GetPellet getPelletDelegate;
 		
 		void Update() {
-			if (detector.IsCollidingWithPellet()) {
-				EatPellet(detector.GetPellet());
+			if (collisionDelegate == null || getPelletDelegate == null) {
+				return;
+			}
+
+			if (collisionDelegate()) {
+				EatPellet(getPelletDelegate());
 			}
 		}
 

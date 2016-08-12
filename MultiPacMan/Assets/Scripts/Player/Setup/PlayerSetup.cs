@@ -5,25 +5,20 @@ namespace MultiPacMan.Player
 {
 	public abstract class PlayerSetup : MonoBehaviour {
 
-		[SerializeField]
-		private Behaviour[] myScripts;
-		[SerializeField]
-		private Behaviour[] notMineScripts;
-
 		void Awake() {
-			if (IsMine()) {
-				RemoveScripts(notMineScripts);
-			} else {
-				RemoveScripts(myScripts);
-			}
-		}
+			IPlayer player;
 
-		private void RemoveScripts(Behaviour[] scripts) {
-			foreach (Behaviour script in scripts) {
-				Destroy(script);
+			if (IsMine()) {
+				player = this.gameObject.AddComponent<PhotonPlayerBehaviour>();
+			} else {
+				player = AddNetworkedPlayer();
 			}
+
+			player.Setup();
 		}
 
 		protected abstract bool IsMine();
+
+		protected abstract IPlayer AddNetworkedPlayer();
 	}
 }

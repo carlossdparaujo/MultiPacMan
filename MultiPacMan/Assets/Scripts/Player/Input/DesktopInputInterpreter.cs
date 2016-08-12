@@ -9,7 +9,7 @@ namespace MultiPacMan.Player.Inputs
 			return Input.GetKey(KeyCode.Space);
 		}
 
-		public override Vector3 GetMovementDirection() {
+		public override Vector2 GetMovementDirection() {
 			float xMovement = 0.0f;
 			float yMovement = 0.0f;
 
@@ -29,7 +29,7 @@ namespace MultiPacMan.Player.Inputs
 				xMovement -= 1.0f;
 			}
 
-			Vector3 movementDir = new Vector3(xMovement, yMovement, 0.0f);
+			Vector2 movementDir = new Vector2(xMovement, yMovement);
 			return movementDir.normalized;
 		}
 	}
