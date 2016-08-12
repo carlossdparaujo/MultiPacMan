@@ -12,14 +12,19 @@ namespace MultiPacMan.Player
 
 		public delegate PelletBehaviour GetPellet();
 		public GetPellet getPelletDelegate;
+
+		public delegate void DidEatPellet(int pelletValue);
+		public DidEatPellet eatPelletDelegate;
 		
 		void Update() {
-			if (collisionDelegate == null || getPelletDelegate == null) {
+			if (collisionDelegate == null || getPelletDelegate == null || eatPelletDelegate == null) {
 				return;
 			}
 
 			if (collisionDelegate()) {
-				EatPellet(getPelletDelegate());
+				PelletBehaviour pellet = getPelletDelegate();
+
+				EatPellet(pellet);
 			}
 		}
 

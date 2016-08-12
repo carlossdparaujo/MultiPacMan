@@ -4,22 +4,18 @@ using MultiPacMan.Player.Turbo;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonNetworkedPlayerBehaviour : Photon.MonoBehaviour, IPlayer {
+	public class PhotonNetworkedPlayerBehaviour : IPlayer {
 		
-		public void Setup() {
+		public override void Setup() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
-
-			NetworkedTurboController turboController = Add<NetworkedTurboController>();
 
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
 			receiver.positionDelegate += movementController.UpdatePosition;
-			receiver.turboDelegate += turboController.SetTurboOn;
+
+			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
+			scoreReceiver.scoreDelegate += UpdateScore;
 
 			this.photonView.ObservedComponents.Add(receiver);
-		}
-
-		private T Add<T>() where T : MonoBehaviour {
-			return this.gameObject.AddComponent<T>();
 		}
 	}
 }

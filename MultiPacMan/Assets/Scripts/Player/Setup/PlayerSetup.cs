@@ -5,6 +5,9 @@ namespace MultiPacMan.Player
 {
 	public abstract class PlayerSetup : MonoBehaviour {
 
+		[SerializeField]
+		private TextMesh playerName;
+
 		void Awake() {
 			IPlayer player;
 
@@ -16,6 +19,7 @@ namespace MultiPacMan.Player
 			}
 
 			player.Setup();
+			playerName.text = player.GetName();
 		}
 
 		protected abstract bool IsMine();

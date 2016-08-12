@@ -8,6 +8,7 @@ namespace MultiPacMan.Player
 
 		protected override void EatPellet(PelletBehaviour pellet) {
 			if (PhotonNetwork.isMasterClient) {
+				eatPelletDelegate(pellet.Score);
 				PhotonNetwork.Destroy(pellet.gameObject);
 			}
 		}

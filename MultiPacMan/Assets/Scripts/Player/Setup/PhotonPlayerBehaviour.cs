@@ -7,9 +7,9 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonPlayerBehaviour : Photon.MonoBehaviour, IPlayer {
+	public class PhotonPlayerBehaviour : IPlayer {
 			
-		public void Setup() {
+		public override void Setup() {
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
 
 			LocalTurboController turboController = Add<LocalTurboController>();
@@ -21,19 +21,20 @@ namespace MultiPacMan.Player
 
 			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
 
+			PhotonPlayerScoreSerializer scoreSerializer = Add<PhotonPlayerScoreSerializer>();
+
 			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
 			pelletEater.collisionDelegate += collisionDetector.IsCollidingWithPellet;
 			pelletEater.getPelletDelegate += collisionDetector.GetPellet;
+			pelletEater.eatPelletDelegate += (int value) => {
+				AddToScore(value);
+				scoreSerializer.UpdateScore(GetScore());
+			};
 
 			PhotonPlayerInfoSerializer serializer = Add<PhotonPlayerInfoSerializer>();
 			serializer.positionDelegate += movementController.GetPosition;
-			serializer.turboDelegate += turboController.IsTurboOn;
 
 			this.photonView.ObservedComponents.Add(serializer);
-		}
-
-		private T Add<T>() where T : MonoBehaviour {
-			return this.gameObject.AddComponent<T>();
 		}
 	}
 }
