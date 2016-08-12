@@ -4,6 +4,11 @@ using System.Collections;
 [RequireComponent(typeof(LevelCreator))]
 public class GameController : Photon.PunBehaviour {
 
+	[SerializeField]
+	private bool simulateLag = false;
+	[SerializeField]
+	private int simulatedLagInMs = 100;
+
 	private LevelCreator levelCreator;
 
 	void Start() {
@@ -32,5 +37,11 @@ public class GameController : Photon.PunBehaviour {
 		base.OnJoinedRoom();
 
 		levelCreator.Create();
+	}
+
+	void Update() {
+		PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
+		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
+		PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
 	}
 }
