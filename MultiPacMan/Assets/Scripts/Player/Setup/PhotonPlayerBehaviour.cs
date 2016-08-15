@@ -10,6 +10,7 @@ namespace MultiPacMan.Player
 	public class PhotonPlayerBehaviour : IPlayer {
 			
 		private LocalTurboController turboController;
+		private PhotonPlayerScoreSerializer scoreSerializer;
 
 		public override void Setup() {
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
@@ -23,7 +24,7 @@ namespace MultiPacMan.Player
 
 			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
 
-			PhotonPlayerScoreSerializer scoreSerializer = Add<PhotonPlayerScoreSerializer>();
+			scoreSerializer = Add<PhotonPlayerScoreSerializer>();
 
 			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
 			pelletEater.collisionDelegate += collisionDetector.IsCollidingWithPellet;
@@ -41,6 +42,10 @@ namespace MultiPacMan.Player
 
 		public float GetTurboFuelPercentage() {
 			return turboController.GetTurboFuelPercentage();
+		}
+
+		void OnPhotonPlayerConnected(PhotonPlayer player) {
+			scoreSerializer.UpdateScore(GetScore());
 		}
 	}
 }

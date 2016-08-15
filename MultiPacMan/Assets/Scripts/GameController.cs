@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MultiPacMan.Player;
@@ -12,6 +13,7 @@ public class GameController : Photon.PunBehaviour {
 	private int simulatedLagInMs = 100;
 
 	private LevelCreator levelCreator;
+	private static Dictionary<string, GameObject> pellets = new Dictionary<string, GameObject>();
 
 	public static List<IPlayer> GetPlayers() {
 		List<IPlayer> playerList = new List<IPlayer>();
@@ -27,6 +29,18 @@ public class GameController : Photon.PunBehaviour {
 		return (PhotonPlayerBehaviour) PhotonNetwork.player.TagObject;
 	}
 
+	public static GameObject PopPellet(int pelletId) {
+		string key = pelletId.ToString();
+
+		if (pellets.ContainsKey(key)) {
+			GameObject pellet = pellets[key];
+			pellets.Remove(key);
+			return pellet;
+		}
+
+		return null;
+	}
+
 	void Start() {
 		levelCreator = this.gameObject.GetComponent<LevelCreator>();
 		levelCreator.playerDelegate += CreatePlayer;
@@ -39,9 +53,13 @@ public class GameController : Photon.PunBehaviour {
 		PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0);
 	}
 
-	public void CreatePellet(Vector2 position, int score) {
+	public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
 		if (PhotonNetwork.isMasterClient) {
-			PhotonNetwork.InstantiateSceneObject("Pellet", new Vector3(position.x, position.y, 0.0f), Quaternion.identity, 0, new object[] { score } );
+			GameObject pellet = PhotonNetwork.InstantiateSceneObject("Pellet", new Vector3(position.x, position.y, 0.0f), Quaternion.identity, 0, 
+				new object[] { score, positionOnMap.x, positionOnMap.y } 
+			);
+
+			pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
 		}
 	}
 
@@ -62,5 +80,9 @@ public class GameController : Photon.PunBehaviour {
 		PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
+	}
+
+	public override void OnLeftRoom() {
+		pellets.Clear();
 	}
 }
