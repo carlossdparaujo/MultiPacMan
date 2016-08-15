@@ -23,6 +23,10 @@ namespace MultiPacMan.Player.Turbo
 			return isTurboOn;
 		}
 
+		public float GetTurboFuelPercentage() {
+			return currentTurboCapacity/turboCapacity;
+		}
+
 		void Update() {
 			if (turboDelegate == null) {
 				return;

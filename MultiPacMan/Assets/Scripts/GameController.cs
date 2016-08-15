@@ -23,6 +23,10 @@ public class GameController : Photon.PunBehaviour {
 		return playerList;
 	}
 
+	public static PhotonPlayerBehaviour GetMyPlayer() {
+		return (PhotonPlayerBehaviour) PhotonNetwork.player.TagObject;
+	}
+
 	void Start() {
 		levelCreator = this.gameObject.GetComponent<LevelCreator>();
 		levelCreator.playerDelegate += CreatePlayer;

@@ -9,10 +9,12 @@ namespace MultiPacMan.Player
 {
 	public class PhotonPlayerBehaviour : IPlayer {
 			
+		private LocalTurboController turboController;
+
 		public override void Setup() {
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
 
-			LocalTurboController turboController = Add<LocalTurboController>();
+			turboController = Add<LocalTurboController>();
 			turboController.turboDelegate += inputInterpreter.IsTurboOn;
 
 			LocalMovementController movementController = Add<LocalMovementController>();
@@ -35,6 +37,10 @@ namespace MultiPacMan.Player
 			serializer.positionDelegate += movementController.GetPosition;
 
 			this.photonView.ObservedComponents.Add(serializer);
+		}
+
+		public float GetTurboFuelPercentage() {
+			return turboController.GetTurboFuelPercentage();
 		}
 	}
 }
