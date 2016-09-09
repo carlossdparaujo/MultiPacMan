@@ -29,11 +29,8 @@ namespace MultiPacMan.Pellet
 			}
 		}
 
-		void OnPhotonInstantiate(PhotonMessageInfo info) {
-			this.score = (int) this.photonView.instantiationData[0];
-			int x = (int) this.photonView.instantiationData[1];
-			int y = (int) this.photonView.instantiationData[2];
-
+		public void Setup(int score, int x, int y) {
+			this.score = score;
 			this.point = new Point(x, y);
 		}
 	}

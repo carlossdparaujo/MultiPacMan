@@ -3,17 +3,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MultiPacMan.Player;
+using MultiPacMan.Pellet;
 
 [RequireComponent(typeof(LevelCreator))]
 public class GameController : Photon.PunBehaviour {
-
+	
 	[SerializeField]
 	private bool simulateLag = false;
 	[SerializeField]
 	private int simulatedLagInMs = 100;
+	[SerializeField]
+	private GameObject pelletPrefab;
 
 	private LevelCreator levelCreator;
 	private static Dictionary<string, GameObject> pellets = new Dictionary<string, GameObject>();
+
+	public delegate void OnGameEnded(List<IPlayer> players);
+	public static OnGameEnded gameEndedDelegate;
 
 	public static List<IPlayer> GetPlayers() {
 		List<IPlayer> playerList = new List<IPlayer>();
@@ -54,13 +60,12 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
-		if (PhotonNetwork.isMasterClient) {
-			GameObject pellet = PhotonNetwork.InstantiateSceneObject("Pellet", new Vector3(position.x, position.y, 0.0f), Quaternion.identity, 0, 
-				new object[] { score, positionOnMap.x, positionOnMap.y } 
-			);
+		Vector3 pos = new Vector3(position.x, position.y, 0.0f);
 
-			pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
-		}
+		GameObject pellet = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
+		pellet.GetComponent<PelletBehaviour>().Setup(score, positionOnMap.x, positionOnMap.y);
+
+		pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
 	}
 
 	public override void OnJoinedLobby() {

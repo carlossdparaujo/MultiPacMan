@@ -8,27 +8,45 @@ namespace MultiPacMan.Player
 	public class PhotonPelletEater : PelletEater {
 
 		public static int EAT_PELLET_EVENT_CODE = 1;
+		public static int REMOVE_PELLET_EVENT_CODE = 2;
 
 		void Start() {
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 		}
 
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if ((int) eventCode == EAT_PELLET_EVENT_CODE) {
+			if ((int)eventCode == EAT_PELLET_EVENT_CODE) {
 				object[] data = (object[]) content;
 
 				int pelletScore = (int) data[0];
 				int pelletId = (int) data[1];
 
 				if (PhotonNetwork.isMasterClient) {
-					GameObject pellet = GameController.PopPellet(pelletId);
+					RaiseEventOptions options = new RaiseEventOptions();
+					options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+					options.Receivers = ReceiverGroup.All;
 
-					if (pellet != null) {
-						PhotonNetwork.Destroy(pellet);
-					}
+					PhotonNetwork.RaiseEvent((byte)REMOVE_PELLET_EVENT_CODE, 
+						new object[3] { pelletScore, pelletId, senderId }, 
+						true, options
+					);
+
+
+				}
+			} else if ((int)eventCode == REMOVE_PELLET_EVENT_CODE) {
+				object[] data = (object[]) content;
+
+				int pelletScore = (int) data[0];
+				int pelletId = (int) data[1];
+				int playerId = (int) data[2];
+
+				GameObject pellet = GameController.PopPellet(pelletId);
+
+				if (pellet != null) {
+					GameObject.DestroyImmediate(pellet);
 				}
 
-				if (PhotonNetwork.player.ID == senderId) {
+				if (PhotonNetwork.player.ID == playerId) {
 					eatPelletDelegate(pelletScore);
 				}
 			}
@@ -39,6 +57,7 @@ namespace MultiPacMan.Player
 				return;
 			}
 
+			// TODO: mas e se a mensagem não vier? não deveria voltar para false?
 			pellet.Eaten = true;
 
 			int pelletId = pellet.Point.GetHashCode();
