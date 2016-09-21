@@ -31,6 +31,18 @@ public class GameController : Photon.PunBehaviour {
 		return playerList;
 	}
 
+	public static IPlayer GetPlayer(int id) {
+		List<IPlayer> playerList = new List<IPlayer>();
+
+		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+			if (player.ID == id) {
+				return (IPlayer) player.TagObject;
+			}
+		}
+
+		return null;
+	}
+
 	public static PhotonPlayerBehaviour GetMyPlayer() {
 		return (PhotonPlayerBehaviour) PhotonNetwork.player.TagObject;
 	}
@@ -53,6 +65,7 @@ public class GameController : Photon.PunBehaviour {
 		levelCreator.pelletDelegate += CreatePellet;
 
 		PhotonNetwork.ConnectUsingSettings("0.0.0");
+		PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 	}
 
 	public void CreatePlayer(Vector2 position) {
@@ -81,6 +94,28 @@ public class GameController : Photon.PunBehaviour {
 		levelCreator.Create();
 	}
 
+	public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
+		if ((int) eventCode == PhotonPelletEater.REMOVE_PELLET_EVENT_CODE) {
+			object[] data = (object[]) content;
+
+			int pelletScore = (int) data[0];
+			int pelletId = (int) data[1];
+			int playerId = (int) data[2];
+
+			GameObject pellet = PopPellet(pelletId);
+
+			if (pellet != null) {
+				GameObject.DestroyImmediate(pellet);
+			}
+
+			IPlayer player = GetPlayer(playerId);
+
+			if (player != null) {
+				player.AddToScore(pelletScore);
+			}
+		}
+	}
+
 	void Update() {
 		PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
@@ -89,5 +124,6 @@ public class GameController : Photon.PunBehaviour {
 
 	public override void OnLeftRoom() {
 		pellets.Clear();
+		PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
 	}
 }

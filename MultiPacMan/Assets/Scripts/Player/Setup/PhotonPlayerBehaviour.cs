@@ -29,9 +29,9 @@ namespace MultiPacMan.Player
 			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
 			pelletEater.collisionDelegate += collisionDetector.IsCollidingWithPellet;
 			pelletEater.getPelletDelegate += collisionDetector.GetPellet;
+
+			// HACK: Isso precisa existir, mas para o caso networkado não existe essa dependência
 			pelletEater.eatPelletDelegate += (int value) => {
-				AddToScore(value);
-				scoreSerializer.UpdateScore(GetScore());
 			};
 
 			PhotonPlayerInfoSerializer serializer = Add<PhotonPlayerInfoSerializer>();
