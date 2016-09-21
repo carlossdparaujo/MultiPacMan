@@ -6,12 +6,24 @@ namespace MultiPacMan.Player
 	public abstract class IPlayer : Photon.MonoBehaviour {
 
 		private int score = 0;
+		public int Score {
+			get {
+				return score;
+			}
+		}
+
+		private string playerName = "";
+		public string PlayerName {
+			get {
+				return playerName;
+			}
+		}
+
+		void Start() {
+			playerName = "Player " + this.photonView.viewID;
+		}
 
 		public abstract void Setup();
-
-		public string GetName() {
-			return "Player " + this.photonView.viewID;  
-		}
 
 		public void UpdateScore(int value) {
 			score = value;
@@ -19,10 +31,6 @@ namespace MultiPacMan.Player
 
 		public void AddToScore(int value) {
 			score += value;
-		}
-
-		public int GetScore() {
-			return score;
 		}
 
 		protected T Add<T>() where T : MonoBehaviour {

@@ -45,7 +45,7 @@ namespace MultiPacMan.Player
 		}
 
 		void OnPhotonPlayerConnected(PhotonPlayer player) {
-			scoreSerializer.UpdateScore(GetScore());
+			scoreSerializer.UpdateScore(Score);
 		}
 	}
 }

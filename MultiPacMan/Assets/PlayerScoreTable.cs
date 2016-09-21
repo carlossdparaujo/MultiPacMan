@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using MultiPacMan.Player;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Text))]
 public class PlayerScoreTable : MonoBehaviour {
@@ -20,7 +21,7 @@ public class PlayerScoreTable : MonoBehaviour {
 				continue;
 			}
 
-			scores += player.GetName() + " : " + player.GetScore() + " | ";
+			scores += player.PlayerName + " : " + player.Score + " | ";
 		}
 
 		label.text = scores;

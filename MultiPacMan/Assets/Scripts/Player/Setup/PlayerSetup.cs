@@ -19,7 +19,7 @@ namespace MultiPacMan.Player
 			}
 
 			player.Setup();
-			playerName.text = player.GetName();
+			playerName.text = player.PlayerName;
 		}
 
 		protected abstract bool IsMine();

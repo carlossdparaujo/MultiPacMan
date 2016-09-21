@@ -17,8 +17,20 @@ public class GameController : Photon.PunBehaviour {
 
 	private LevelCreator levelCreator;
 	private static Dictionary<string, GameObject> pellets = new Dictionary<string, GameObject>();
+	private bool gameInitiliazed = false;
+	private bool isPlaying = false;
 
-	public delegate void OnGameEnded(List<IPlayer> players);
+	public struct PlayerData {
+		public readonly string name;
+		public readonly int score;
+
+		public PlayerData(string name, int score) {
+			this.name = name;
+			this.score = score;
+		}
+	}
+
+	public delegate void OnGameEnded(List<PlayerData> players);
 	public static OnGameEnded gameEndedDelegate;
 
 	public static List<IPlayer> GetPlayers() {
@@ -32,8 +44,6 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public static IPlayer GetPlayer(int id) {
-		List<IPlayer> playerList = new List<IPlayer>();
-
 		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
 			if (player.ID == id) {
 				return (IPlayer) player.TagObject;
@@ -66,6 +76,7 @@ public class GameController : Photon.PunBehaviour {
 
 		PhotonNetwork.ConnectUsingSettings("0.0.0");
 		PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
+		isPlaying = true;
 	}
 
 	public void CreatePlayer(Vector2 position) {
@@ -79,9 +90,15 @@ public class GameController : Photon.PunBehaviour {
 		pellet.GetComponent<PelletBehaviour>().Setup(score, positionOnMap.x, positionOnMap.y);
 
 		pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
+
+		gameInitiliazed = true;
 	}
 
 	public override void OnJoinedLobby() {
+		if (isPlaying == false) {
+			return;
+		}
+
 		RoomOptions roomOptions = new RoomOptions();
 		roomOptions.maxPlayers = 4;
 
@@ -90,6 +107,11 @@ public class GameController : Photon.PunBehaviour {
 
 	public override void OnJoinedRoom() {
 		base.OnJoinedRoom();
+
+		if (isPlaying == false) {
+			PhotonNetwork.LeaveRoom();
+			return;
+		}
 
 		levelCreator.Create();
 	}
@@ -120,6 +142,22 @@ public class GameController : Photon.PunBehaviour {
 		PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
+
+		if (pellets.Count == 0 && gameInitiliazed && isPlaying) {
+			gameEndedDelegate(getPlayersData());
+			isPlaying = false;
+			PhotonNetwork.LeaveRoom();
+		}
+	}
+
+	private List<PlayerData> getPlayersData() {
+		List<PlayerData> data = new List<PlayerData>();
+
+		foreach (IPlayer player in GetPlayers()) {
+			data.Add(new PlayerData(player.PlayerName, player.Score));
+		}
+
+		return data;
 	}
 
 	public override void OnLeftRoom() {
