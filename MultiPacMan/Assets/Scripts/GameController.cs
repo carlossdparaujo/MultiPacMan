@@ -30,6 +30,9 @@ public class GameController : Photon.PunBehaviour {
 		}
 	}
 
+	public delegate void OnGameStarted();
+	public static OnGameStarted gameStartedDelegate;
+
 	public delegate void OnGameEnded(List<PlayerData> players);
 	public static OnGameEnded gameEndedDelegate;
 
@@ -70,6 +73,10 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	void Start() {
+		if (gameStartedDelegate != null) {
+			gameStartedDelegate();
+		}
+
 		levelCreator = this.gameObject.GetComponent<LevelCreator>();
 		levelCreator.playerDelegate += CreatePlayer;
 		levelCreator.pelletDelegate += CreatePellet;
@@ -144,7 +151,10 @@ public class GameController : Photon.PunBehaviour {
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
 
 		if (pellets.Count == 0 && gameInitiliazed && isPlaying) {
-			gameEndedDelegate(getPlayersData());
+			if (gameEndedDelegate != null) {
+				gameEndedDelegate(getPlayersData());
+			}
+
 			isPlaying = false;
 			PhotonNetwork.LeaveRoom();
 		}
