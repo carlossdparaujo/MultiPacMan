@@ -36,6 +36,7 @@ namespace MultiPacMan.Player
 
 			PhotonPlayerInfoSerializer serializer = Add<PhotonPlayerInfoSerializer>();
 			serializer.positionDelegate += movementController.GetPosition;
+			serializer.velocityDelegate += movementController.GetVelocity;
 
 			this.photonView.ObservedComponents.Add(serializer);
 		}

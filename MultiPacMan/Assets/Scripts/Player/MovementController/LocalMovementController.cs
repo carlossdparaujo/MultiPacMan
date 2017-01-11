@@ -18,8 +18,6 @@ namespace MultiPacMan.Player
 		[SerializeField]
 		private float turboSpeed = 8.0f;
 
-		private Vector2 currentVelocity = Vector2.zero;
-
 		void FixedUpdate() {
 			if (directionDelegate == null || turboDelegate == null) {
 				return;
