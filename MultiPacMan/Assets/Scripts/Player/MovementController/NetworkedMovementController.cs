@@ -42,18 +42,20 @@ namespace MultiPacMan.Player
 		private void MoveWithInterpolation(Vector2 position, Vector2 velocity) {
 			timeWaited = t;
 			newPosition = position;
+			t = 0.0f;
 		}
 
 		private void MoveWithExtrapolation(Vector2 position, Vector2 velocity) {
 			timeWaited = t;
 			newPosition = position + timeWaited*velocity;
+			t = 0.0f;
 		}
 
 		private void Move(Vector2 position) {
 			rb.MovePosition(position);
 		}
 
-		void Update() {
+		void FixedUpdate() {
 			if (!started || option == NetworkingOptions.Default) {
 				t = 0.0f;
 				timeWaited = 0.0f;
@@ -62,7 +64,7 @@ namespace MultiPacMan.Player
 			}
 
 			t += Time.deltaTime;
-			Vector2.Lerp(rb.position, newPosition, t/timeWaited);
+			rb.MovePosition(Vector2.Lerp(rb.position, newPosition, t/timeWaited));
 		}
 	}
 }
