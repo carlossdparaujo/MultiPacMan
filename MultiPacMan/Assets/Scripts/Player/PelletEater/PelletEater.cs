@@ -13,7 +13,7 @@ namespace MultiPacMan.Player
 		public delegate PelletBehaviour GetPellet();
 		public GetPellet getPelletDelegate;
 
-		public delegate void DidEatPellet(int pelletValue);
+		public delegate void DidEatPellet(int pelletId, int pelletValue);
 		public DidEatPellet eatPelletDelegate;
 		
 		void Update() {
@@ -23,11 +23,20 @@ namespace MultiPacMan.Player
 
 			if (collisionDelegate()) {
 				PelletBehaviour pellet = getPelletDelegate();
-
 				EatPellet(pellet);
 			}
 		}
 
-		protected abstract void EatPellet(PelletBehaviour pellet);
+		private void EatPellet(PelletBehaviour pellet) {
+			if (pellet.Eaten) {
+				return;
+			}
+
+			pellet.Eaten = true;
+
+			int pelletId = pellet.Point.GetHashCode();
+
+			eatPelletDelegate(pelletId, pellet.Score);
+		}
 	}
 }

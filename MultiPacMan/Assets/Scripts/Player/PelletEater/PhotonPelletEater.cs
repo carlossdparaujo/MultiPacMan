@@ -33,25 +33,6 @@ namespace MultiPacMan.Player
 				}
 			}
 		}
-
-		protected override void EatPellet(PelletBehaviour pellet) {
-			if (pellet.Eaten) {
-				return;
-			}
-
-			pellet.Eaten = true;
-
-			int pelletId = pellet.Point.GetHashCode();
-
-			RaiseEventOptions options = new RaiseEventOptions();
-			options.CachingOption = EventCaching.DoNotCache;
-			options.Receivers = ReceiverGroup.All;
-
-			PhotonNetwork.RaiseEvent((byte) EAT_PELLET_EVENT_CODE, 
-				new object[2] { pellet.Score, pelletId }, 
-				true, options
-			);
-		}
 	}
 }
 
