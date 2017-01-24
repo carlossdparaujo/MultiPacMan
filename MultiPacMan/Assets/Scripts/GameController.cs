@@ -16,7 +16,7 @@ public class GameController : Photon.PunBehaviour {
 	private GameObject pelletPrefab;
 
 	private LevelCreator levelCreator;
-	private static Dictionary<string, GameObject> pellets = new Dictionary<string, GameObject>();
+	private static Dictionary<string, PelletBehaviour> pellets = new Dictionary<string, PelletBehaviour>();
 	private bool gameInitiliazed = false;
 	private bool isPlaying = false;
 
@@ -60,18 +60,6 @@ public class GameController : Photon.PunBehaviour {
 		return (PhotonPlayerBehaviour) PhotonNetwork.player.TagObject;
 	}
 
-	public static GameObject PopPellet(int pelletId) {
-		string key = pelletId.ToString();
-
-		if (pellets.ContainsKey(key)) {
-			GameObject pellet = pellets[key];
-			pellets.Remove(key);
-			return pellet;
-		}
-
-		return null;
-	}
-
 	void Start() {
 		if (gameStartedDelegate != null) {
 			gameStartedDelegate();
@@ -93,8 +81,9 @@ public class GameController : Photon.PunBehaviour {
 	public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
 		Vector3 pos = new Vector3(position.x, position.y, 0.0f);
 
-		GameObject pellet = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
-		pellet.GetComponent<PelletBehaviour>().Setup(score, positionOnMap.x, positionOnMap.y);
+		GameObject pelletGameObject = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
+		PelletBehaviour pellet = pelletGameObject.GetComponent<PelletBehaviour>();
+		pellet.Setup(score, positionOnMap.x, positionOnMap.y);
 
 		pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
 
@@ -131,10 +120,10 @@ public class GameController : Photon.PunBehaviour {
 			int pelletId = (int) data[1];
 			int playerId = (int) data[2];
 
-			GameObject pellet = PopPellet(pelletId);
+			PelletBehaviour pellet = PopPellet(pelletId);
 
 			if (pellet != null) {
-				GameObject.DestroyImmediate(pellet);
+				pellet.DestroyAfterAnimation();
 			}
 
 			IPlayer player = GetPlayer(playerId);
@@ -143,6 +132,18 @@ public class GameController : Photon.PunBehaviour {
 				player.AddToScore(pelletScore);
 			}
 		}
+	}
+
+	private static PelletBehaviour PopPellet(int pelletId) {
+		string key = pelletId.ToString();
+
+		if (pellets.ContainsKey(key)) {
+			PelletBehaviour pellet = pellets[key];
+			pellets.Remove(key);
+			return pellet;
+		}
+
+		return null;
 	}
 
 	void Update() {

@@ -32,17 +32,32 @@ namespace MultiPacMan.Pellet
 			}
 		}
 
+		private bool shouldDestroy = false;
+
 		public void Setup(int score, int x, int y) {
 			this.score = score;
 			this.point = new Point(x, y);
 
 			animator.GetBehaviour<PelletIdleAnimation>().enteredState += () => {
 				eaten = false;
+
+				if (shouldDestroy) {
+					Destroy(this.gameObject);
+				}
 			};
 		}
 
 		public void AnimatePelletEaten() {
 			animator.SetBool("eaten", true);
+		}
+
+		public void DestroyAfterAnimation() {
+			if (!eaten) {
+				Destroy(this.gameObject);
+				return;			
+			}
+
+			shouldDestroy = true;
 		}
 	}
 }

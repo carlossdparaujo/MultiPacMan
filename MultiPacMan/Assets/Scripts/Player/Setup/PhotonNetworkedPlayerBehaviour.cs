@@ -1,6 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using MultiPacMan.Player.Collision;
 using MultiPacMan.Player.Turbo;
+using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
@@ -14,6 +16,14 @@ namespace MultiPacMan.Player
 
 			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
 			scoreReceiver.scoreDelegate += UpdateScore;
+
+			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
+			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
+				pellet.AnimatePelletEaten();
+			};
+
+			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
+			collisionDetector.collisionDelegate += pelletEater.EatPellet;
 
 			this.photonView.ObservedComponents.Add(receiver);
 		}

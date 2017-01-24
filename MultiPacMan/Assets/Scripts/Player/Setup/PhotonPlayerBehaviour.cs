@@ -26,6 +26,8 @@ namespace MultiPacMan.Player
 
 			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
 			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
+				pellet.AnimatePelletEaten();
+
 				int pelletValue = pellet.Score;
 				int pelletId = pellet.Point.GetHashCode();
 
