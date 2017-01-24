@@ -3,7 +3,10 @@ using System.Collections;
 
 namespace MultiPacMan.Pellet
 {
-	public class PelletBehaviour : Photon.MonoBehaviour {
+	public class PelletBehaviour : MonoBehaviour {
+
+		[SerializeField]
+		private Animator animator;
 
 		private bool eaten = false;
 		public bool Eaten {
@@ -32,6 +35,14 @@ namespace MultiPacMan.Pellet
 		public void Setup(int score, int x, int y) {
 			this.score = score;
 			this.point = new Point(x, y);
+
+			animator.GetBehaviour<PelletIdleAnimation>().enteredState += () => {
+				eaten = false;
+			};
+		}
+
+		public void AnimatePelletEaten() {
+			animator.SetBool("eaten", true);
 		}
 	}
 }
