@@ -6,15 +6,8 @@ namespace MultiPacMan.Player.Collision
 {
 	public class PelletCollisionDetector : MonoBehaviour {
 
-		private PelletBehaviour pellet = null;
-
-		public bool IsCollidingWithPellet() {
-			return (pellet != null);
-		}
-
-		public PelletBehaviour GetPellet() {
-			return pellet;
-		}
+		public delegate void CollidingWithPellet(PelletBehaviour pellet);
+		public CollidingWithPellet collisionDelegate;
 
 		void OnTriggerEnter2D(Collider2D other) {
 			DetectCollision(other);
@@ -26,13 +19,8 @@ namespace MultiPacMan.Player.Collision
 
 		private void DetectCollision(Collider2D other) {
 			if (IsCollidingWithPellet(other)) {
-				pellet = other.gameObject.GetComponent<PelletBehaviour>();
-			}
-		}
-
-		void OnTriggerExit2D(Collider2D other) {
-			if (IsCollidingWithPellet(other)) {
-				pellet = null;
+				PelletBehaviour pellet = other.gameObject.GetComponent<PelletBehaviour>();
+				collisionDelegate(pellet);
 			}
 		}
 

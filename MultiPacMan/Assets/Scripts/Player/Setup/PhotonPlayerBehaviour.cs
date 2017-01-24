@@ -22,14 +22,13 @@ namespace MultiPacMan.Player
 			movementController.directionDelegate += inputInterpreter.GetMovementDirection;
 			movementController.turboDelegate += turboController.IsTurboOn;
 
-			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
-
 			scoreSerializer = Add<PhotonPlayerScoreSerializer>();
 
 			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
-			pelletEater.collisionDelegate += collisionDetector.IsCollidingWithPellet;
-			pelletEater.getPelletDelegate += collisionDetector.GetPellet;
-			pelletEater.eatPelletDelegate += (int pelletId, int pelletValue) => {
+			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
+				int pelletValue = pellet.Score;
+				int pelletId = pellet.Point.GetHashCode();
+
 				RaiseEventOptions options = new RaiseEventOptions();
 				options.CachingOption = EventCaching.DoNotCache;
 				options.Receivers = ReceiverGroup.MasterClient;
@@ -39,6 +38,9 @@ namespace MultiPacMan.Player
 					true, options
 				);
 			};
+
+			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
+			collisionDetector.collisionDelegate += pelletEater.EatPellet;
 
 			PhotonPlayerInfoSerializer serializer = Add<PhotonPlayerInfoSerializer>();
 			serializer.positionDelegate += movementController.GetPosition;
