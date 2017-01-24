@@ -5,7 +5,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public abstract class PelletEater : MonoBehaviour {
+	public class PelletEater : MonoBehaviour {
 
 		public delegate void DidEatPellet(PelletBehaviour pellet);
 		public DidEatPellet eatPelletDelegate;

@@ -113,7 +113,7 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-		if ((int) eventCode == PhotonPelletEater.REMOVE_PELLET_EVENT_CODE) {
+		if ((int) eventCode == PhotonPlayerBehaviour.REMOVE_PELLET_EVENT_CODE) {
 			object[] data = (object[]) content;
 
 			int pelletScore = (int) data[0];

@@ -12,7 +12,12 @@ namespace MultiPacMan.Player
 		private LocalTurboController turboController;
 		private PhotonPlayerScoreSerializer scoreSerializer;
 
+		public static int EAT_PELLET_EVENT_CODE = 1;
+		public static int REMOVE_PELLET_EVENT_CODE = 2;
+
 		public override void Setup() {
+			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
+
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
 
 			turboController = Add<LocalTurboController>();
@@ -24,7 +29,7 @@ namespace MultiPacMan.Player
 
 			scoreSerializer = Add<PhotonPlayerScoreSerializer>();
 
-			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
+			PelletEater pelletEater = Add<PelletEater>();
 			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
 				pellet.AnimatePelletEaten();
 
@@ -35,7 +40,7 @@ namespace MultiPacMan.Player
 				options.CachingOption = EventCaching.DoNotCache;
 				options.Receivers = ReceiverGroup.MasterClient;
 
-				PhotonNetwork.RaiseEvent((byte) PhotonPelletEater.EAT_PELLET_EVENT_CODE, 
+				PhotonNetwork.RaiseEvent((byte) EAT_PELLET_EVENT_CODE, 
 					new object[2] { pelletValue, pelletId }, 
 					true, options
 				);
@@ -49,6 +54,26 @@ namespace MultiPacMan.Player
 			serializer.velocityDelegate += movementController.GetVelocity;
 
 			this.photonView.ObservedComponents.Add(serializer);
+		}
+
+		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
+			if ((int) eventCode == EAT_PELLET_EVENT_CODE) {
+				object[] data = (object[]) content;
+
+				int pelletScore = (int) data[0];
+				int pelletId = (int) data[1];
+
+				if (PhotonNetwork.isMasterClient) {
+					RaiseEventOptions options = new RaiseEventOptions();
+					options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+					options.Receivers = ReceiverGroup.All;
+
+					PhotonNetwork.RaiseEvent((byte) REMOVE_PELLET_EVENT_CODE, 
+						new object[3] { pelletScore, pelletId, senderId }, 
+						true, options
+					);
+				}
+			}
 		}
 
 		public float GetTurboFuelPercentage() {

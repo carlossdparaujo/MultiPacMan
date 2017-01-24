@@ -17,7 +17,7 @@ namespace MultiPacMan.Player
 			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
 			scoreReceiver.scoreDelegate += UpdateScore;
 
-			PhotonPelletEater pelletEater = Add<PhotonPelletEater>();
+			PelletEater pelletEater = Add<PelletEater>();
 			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
 				pellet.AnimatePelletEaten();
 			};
