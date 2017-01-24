@@ -13,10 +13,6 @@ namespace MultiPacMan.Player.Collision
 			DetectCollision(other);
 		}
 
-		void OnTriggerStay2D(Collider2D other) {
-			DetectCollision(other);
-		}
-
 		private void DetectCollision(Collider2D other) {
 			if (IsCollidingWithPellet(other)) {
 				PelletBehaviour pellet = other.gameObject.GetComponent<PelletBehaviour>();
