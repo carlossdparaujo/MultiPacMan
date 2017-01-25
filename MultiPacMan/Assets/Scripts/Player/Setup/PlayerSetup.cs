@@ -12,17 +12,17 @@ namespace MultiPacMan.Player
 			IPlayer player;
 
 			if (IsMine()) {
-				player = this.gameObject.AddComponent<PhotonPlayerBehaviour>();
+				player = SetLocalPlayer();
 				Camera.main.GetComponent<FollowPlayer>().Follow(this.gameObject);
 			} else {
-				player = AddNetworkedPlayer();
+				player = SetNetworkedPlayer();
 			}
 
 			playerName.text = player.PlayerName;
 		}
 
 		protected abstract bool IsMine();
-
-		protected abstract IPlayer AddNetworkedPlayer();
+		protected abstract IPlayer SetLocalPlayer();
+		protected abstract IPlayer SetNetworkedPlayer();
 	}
 }
