@@ -18,7 +18,6 @@ namespace MultiPacMan.Player
 				player = AddNetworkedPlayer();
 			}
 
-			player.Setup();
 			playerName.text = player.PlayerName;
 		}
 

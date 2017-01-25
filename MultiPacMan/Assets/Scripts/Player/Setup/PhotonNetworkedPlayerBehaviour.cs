@@ -6,9 +6,9 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonNetworkedPlayerBehaviour : IPlayer {
+	public class PhotonNetworkedPlayerBehaviour : PhotonPlayer {
 		
-		public override void Setup() {
+		void Start() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
 
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
@@ -25,7 +25,7 @@ namespace MultiPacMan.Player
 			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
 			collisionDetector.collisionDelegate += pelletEater.EatPellet;
 
-			this.photonView.ObservedComponents.Add(receiver);
+			GetPhotonView().ObservedComponents.Add(receiver);
 		}
 	}
 }

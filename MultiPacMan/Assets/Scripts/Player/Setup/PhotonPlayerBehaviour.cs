@@ -7,7 +7,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonPlayerBehaviour : IPlayer {
+	public class PhotonPlayerBehaviour : PhotonPlayer {
 			
 		private LocalTurboController turboController;
 		private PhotonPlayerScoreSerializer scoreSerializer;
@@ -15,7 +15,7 @@ namespace MultiPacMan.Player
 		public static int EAT_PELLET_EVENT_CODE = 1;
 		public static int REMOVE_PELLET_EVENT_CODE = 2;
 
-		public override void Setup() {
+		void Start() {
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
@@ -53,7 +53,7 @@ namespace MultiPacMan.Player
 			serializer.positionDelegate += movementController.GetPosition;
 			serializer.velocityDelegate += movementController.GetVelocity;
 
-			this.photonView.ObservedComponents.Add(serializer);
+			GetPhotonView().ObservedComponents.Add(serializer);
 		}
 
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {

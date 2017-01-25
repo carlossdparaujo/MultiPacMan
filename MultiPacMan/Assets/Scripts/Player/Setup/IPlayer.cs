@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MultiPacMan.Player
 {
-	public abstract class IPlayer : Photon.MonoBehaviour {
+	public abstract class IPlayer : MonoBehaviour {
 
 		private int score = 0;
 		public int Score {
@@ -12,19 +12,10 @@ namespace MultiPacMan.Player
 			}
 		}
 
-		private string playerName = "";
-		public string PlayerName {
-			get {
-				return playerName;
-			}
+		public abstract string PlayerName {
+			get;
 		}
-
-		void Start() {
-			playerName = "Player " + this.photonView.viewID;
-		}
-
-		public abstract void Setup();
-
+			
 		public void UpdateScore(int value) {
 			score = value;
 		}
@@ -35,10 +26,6 @@ namespace MultiPacMan.Player
 
 		protected T Add<T>() where T : MonoBehaviour {
 			return this.gameObject.AddComponent<T>();
-		}
-
-		void OnPhotonInstantiate(PhotonMessageInfo info) {
-			this.photonView.owner.TagObject = this;
 		}
 	}
 }
