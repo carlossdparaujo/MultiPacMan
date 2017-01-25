@@ -7,7 +7,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonPlayerBehaviour : PhotonPlayer {
+	public class PhotonLocalPlayer : PhotonPlayer {
 			
 		private LocalTurboController turboController;
 		private PhotonPlayerScoreSerializer scoreSerializer;

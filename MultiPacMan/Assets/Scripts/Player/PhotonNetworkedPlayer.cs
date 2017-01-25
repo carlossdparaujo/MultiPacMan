@@ -6,7 +6,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Player
 {
-	public class PhotonNetworkedPlayerBehaviour : PhotonPlayer {
+	public class PhotonNetworkedPlayer : PhotonPlayer {
 		
 		void Start() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();

@@ -13,7 +13,7 @@ public class PlayerTurboMeter : MonoBehaviour {
 	}
 	
 	void Update () {
-		PhotonPlayerBehaviour player = GameController.GetMyPlayer();
+		PhotonLocalPlayer player = GameController.GetMyPlayer();
 
 		if (player == null) {
 			return;

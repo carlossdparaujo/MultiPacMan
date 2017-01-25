@@ -56,8 +56,8 @@ public class GameController : Photon.PunBehaviour {
 		return null;
 	}
 
-	public static PhotonPlayerBehaviour GetMyPlayer() {
-		return (PhotonPlayerBehaviour) PhotonNetwork.player.TagObject;
+	public static PhotonLocalPlayer GetMyPlayer() {
+		return (PhotonLocalPlayer) PhotonNetwork.player.TagObject;
 	}
 
 	void Start() {
@@ -113,7 +113,7 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-		if ((int) eventCode == PhotonPlayerBehaviour.REMOVE_PELLET_EVENT_CODE) {
+		if ((int) eventCode == PhotonLocalPlayer.REMOVE_PELLET_EVENT_CODE) {
 			object[] data = (object[]) content;
 
 			int pelletScore = (int) data[0];

@@ -11,11 +11,11 @@ namespace MultiPacMan.Player
 		}
 
 		protected override IPlayer SetLocalPlayer() {
-			return this.gameObject.AddComponent<PhotonPlayerBehaviour>();
+			return this.gameObject.AddComponent<PhotonLocalPlayer>();
 		}
 
 		protected override IPlayer SetNetworkedPlayer() {
-			return this.gameObject.AddComponent<PhotonNetworkedPlayerBehaviour>();
+			return this.gameObject.AddComponent<PhotonNetworkedPlayer>();
 		}
 	}
 }
