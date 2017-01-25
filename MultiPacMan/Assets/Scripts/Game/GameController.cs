@@ -36,26 +36,6 @@ public class GameController : Photon.PunBehaviour {
 	public delegate void OnGameEnded(List<PlayerData> players);
 	public static OnGameEnded gameEndedDelegate;
 
-	public static List<IPlayer> GetPlayers() {
-		List<IPlayer> playerList = new List<IPlayer>();
-
-		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-			playerList.Add((IPlayer) player.TagObject);
-		}
-
-		return playerList;
-	}
-
-	public static IPlayer GetPlayer(int id) {
-		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-			if (player.ID == id) {
-				return (IPlayer) player.TagObject;
-			}
-		}
-
-		return null;
-	}
-
 	public static PhotonLocalPlayer GetMyPlayer() {
 		return (PhotonLocalPlayer) PhotonNetwork.player.TagObject;
 	}
@@ -146,6 +126,16 @@ public class GameController : Photon.PunBehaviour {
 		return null;
 	}
 
+	private static IPlayer GetPlayer(int id) {
+		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+			if (player.ID == id) {
+				return (IPlayer) player.TagObject;
+			}
+		}
+
+		return null;
+	}
+
 	void Update() {
 		PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
@@ -169,6 +159,16 @@ public class GameController : Photon.PunBehaviour {
 		}
 
 		return data;
+	}
+
+	private static List<IPlayer> GetPlayers() {
+		List<IPlayer> playerList = new List<IPlayer>();
+
+		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+			playerList.Add((IPlayer) player.TagObject);
+		}
+
+		return playerList;
 	}
 
 	public override void OnLeftRoom() {

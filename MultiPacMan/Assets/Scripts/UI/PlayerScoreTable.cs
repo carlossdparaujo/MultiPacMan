@@ -9,19 +9,26 @@ public class PlayerScoreTable : MonoBehaviour {
 
 	private Text label;
 
+	private Dictionary<string, int> playersScores = new Dictionary<string, int>();
+
 	void Start() {
 		label = this.gameObject.GetComponent<Text>();
+		IPlayer.scoreDelegate += UpdatePlayerScore;
+	}
+
+	private void UpdatePlayerScore(string playerName, int score) {
+		if (playersScores.ContainsKey(playerName)) {
+			playersScores[playerName] = score;
+		} else {
+			playersScores.Add(playerName, score);
+		}
 	}
 
 	void Update () {
 		string scores = "";
 
-		foreach (IPlayer player in GameController.GetPlayers()) {
-			if (player == null) { 
-				continue;
-			}
-
-			scores += player.PlayerName + " : " + player.Score + " | ";
+		foreach (string player in playersScores.Keys) {
+			scores += player + " : " + playersScores[player] + " | ";
 		}
 
 		label.text = scores;
