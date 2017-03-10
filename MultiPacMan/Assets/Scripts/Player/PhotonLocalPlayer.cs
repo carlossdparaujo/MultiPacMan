@@ -9,18 +9,23 @@ namespace MultiPacMan.Player
 {
 	public class PhotonLocalPlayer : PhotonPlayer {
 			
-		private LocalTurboController turboController;
 		private PhotonPlayerScoreSerializer scoreSerializer;
 
 		public static int EAT_PELLET_EVENT_CODE = 1;
 		public static int REMOVE_PELLET_EVENT_CODE = 2;
+
+		public override TurboController TurboController {
+			get {
+				return GetComponent<LocalTurboController>();
+			}
+		}
 
 		void Start() {
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
 
-			turboController = Add<LocalTurboController>();
+			LocalTurboController turboController = Add<LocalTurboController>();
 			turboController.turboDelegate += inputInterpreter.IsTurboOn;
 
 			LocalMovementController movementController = Add<LocalMovementController>();
@@ -74,10 +79,6 @@ namespace MultiPacMan.Player
 					);
 				}
 			}
-		}
-
-		public float GetTurboFuelPercentage() {
-			return turboController.GetTurboFuelPercentage();
 		}
 
 		void OnPhotonPlayerConnected(PhotonPlayer player) {

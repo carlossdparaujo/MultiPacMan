@@ -7,12 +7,20 @@ using MultiPacMan.Pellet;
 namespace MultiPacMan.Player
 {
 	public class PhotonNetworkedPlayer : PhotonPlayer {
-		
+
+		public override TurboController TurboController {
+			get {
+				return GetComponent<NetworkedTurboController>();
+			}
+		}
+
 		void Start() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
+			NetworkedTurboController turboController = Add<NetworkedTurboController>();
 
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
 			receiver.positionDelegate += movementController.UpdatePosition;
+			receiver.turboDelegate += turboController.UpdateTurbo;
 
 			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
 			scoreReceiver.scoreDelegate += UpdateScore;

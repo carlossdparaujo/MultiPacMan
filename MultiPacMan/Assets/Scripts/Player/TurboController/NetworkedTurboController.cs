@@ -4,27 +4,19 @@ using System.Collections;
 namespace MultiPacMan.Player.Turbo
 {
 	public class NetworkedTurboController : TurboController {
-		public delegate bool IsTurboInUse();
-		public IsTurboInUse turboDelegate;
 
-		private bool isTurboOn = false;
+		private bool turboOn = false;
 
-		public override bool IsTurboOn() {
-			return isTurboOn;
+		public override float GetTurboFuelPercentage() {
+			return 0.0f;
 		}
 
-		void Update() {
-			if (turboDelegate == null) {
-				return;
-			}
+		public override bool IsTurboOn() {
+			return turboOn;
+		}
 
-			if (turboDelegate()) {
-				
-			} else {
-				
-			}
-
-			isTurboOn = turboDelegate ();
+		public void UpdateTurbo(Vector2 velocity) {
+			turboOn = velocity.magnitude > 0.1f;
 		}
 	}
 }

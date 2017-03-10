@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using MultiPacMan.Player.Turbo;
 
 namespace MultiPacMan.Player
 {
@@ -18,6 +19,10 @@ namespace MultiPacMan.Player
 		public abstract string PlayerName {
 			get;
 		}
+
+		public abstract TurboController TurboController {
+			get;
+		}
 			
 		public void UpdateScore(int value) {
 			score = value;
@@ -33,6 +38,10 @@ namespace MultiPacMan.Player
 			if (scoreDelegate != null) {
 				scoreDelegate(PlayerName, score);
 			}
+		}
+
+		public float GetTurboFuelPercentage() {
+			return TurboController.GetTurboFuelPercentage();
 		}
 
 		protected T Add<T>() where T : MonoBehaviour {

@@ -8,6 +8,9 @@ namespace MultiPacMan.Player
 		public delegate void SetPlayerPosition(Vector2 position, Vector2 velocity);
 		public SetPlayerPosition positionDelegate;
 
+		public delegate void SetPlayerTurbo(Vector2 velocity);
+		public SetPlayerTurbo turboDelegate;
+
 		public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
 			if (positionDelegate == null) {
 				return;
@@ -17,6 +20,7 @@ namespace MultiPacMan.Player
 				Vector2 pos = DecompressPosition(stream.ReceiveNext());
 				Vector2 vel = DecompressVelocity(stream.ReceiveNext());
 				positionDelegate(pos, vel);
+				turboDelegate(vel);
 			}
 		}
 

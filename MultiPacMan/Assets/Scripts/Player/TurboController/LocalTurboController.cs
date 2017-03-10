@@ -4,9 +4,6 @@ using UnityEngine;
 namespace MultiPacMan.Player.Turbo
 {
 	public class LocalTurboController : TurboController {
-		
-		public delegate bool IsTurboInUse();
-		public IsTurboInUse turboDelegate;
 
 		[SerializeField]
 		private float turboCapacity = 100.0f;
@@ -17,15 +14,8 @@ namespace MultiPacMan.Player.Turbo
 		[SerializeField]
 		private float turboRecoveryPerSecond = 10.0f;
 
-		private bool isTurboOn = false;
-
-		public override bool IsTurboOn() {
-			return isTurboOn;
-		}
-
-		public float GetTurboFuelPercentage() {
-			return currentTurboCapacity/turboCapacity;
-		}
+		public delegate bool IsTurboInUse();
+		public IsTurboInUse turboDelegate;
 
 		void Update() {
 			if (turboDelegate == null) {
@@ -39,8 +29,18 @@ namespace MultiPacMan.Player.Turbo
 				float turboRecovered = (turboRecoveryPerSecond*Time.deltaTime);
 				currentTurboCapacity = Mathf.Min(currentTurboCapacity + turboRecovered, turboCapacity);
 			}
+		}
 
-			isTurboOn = turboDelegate() && (currentTurboCapacity > 0);
+		public override bool IsTurboOn() {
+			if (turboDelegate == null) {
+				return false;
+			}
+
+			return turboDelegate() && (currentTurboCapacity > 0);
+		}
+
+		public override float GetTurboFuelPercentage() {
+			return currentTurboCapacity/turboCapacity;
 		}
 	}
 }
