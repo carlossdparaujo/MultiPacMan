@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace MultiPacMan.Player
 {
-	enum NetworkingOptions {
+	public enum NetworkingOptions {
 		Default,
 		Interpolation,
 		InterpolationAndExtrapolation
@@ -11,8 +11,7 @@ namespace MultiPacMan.Player
 
 	public class NetworkedMovementController : MovementController {
 
-		[SerializeField]
-		private NetworkingOptions option = NetworkingOptions.Default;
+		public static NetworkingOptions serializationOption = NetworkingOptions.Default;
 
 		private float t = 0.0f;
 		private float timeWaited = 0.0f;
@@ -27,7 +26,7 @@ namespace MultiPacMan.Player
 		}
 
 		public void UpdatePosition(Vector2 position, Vector2 velocity) {
-			switch (option) {
+			switch (serializationOption) {
 			case NetworkingOptions.Interpolation:
 				MoveWithInterpolation(position, velocity);
 				break;
@@ -59,7 +58,7 @@ namespace MultiPacMan.Player
 		}
 
 		void Update() {
-			if (!started || option == NetworkingOptions.Default) {
+			if (!started || serializationOption == NetworkingOptions.Default) {
 				t = 0.0f;
 				timeWaited = 0.0f;
 				newPosition = Vector2.zero;
