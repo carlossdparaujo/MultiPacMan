@@ -68,15 +68,17 @@ public class LevelCreator : MonoBehaviour {
 
 	public void Create() {
 		Vector2 position = Vector2.zero;
+		Vector3 spriteExtents = wallPrefab.GetComponent<SpriteRenderer> ().sprite.bounds.extents;
+		Vector3 wallScale = wallPrefab.transform.localScale;
 
 		for (int i = 0; i < maze.GetLength(0); ++i) {
 			for (int j = 0; j < maze.GetLength(1); ++j) {
 				CreateCell(maze[i, j], position, new Point(i, j));
-				position.x += wallPrefab.GetComponent<SpriteRenderer>().sprite.bounds.extents.x * 2;
+				position.x += spriteExtents.x * wallScale.x * 2;
 			}
 
 			position.x = 0.0f;
-			position.y += wallPrefab.GetComponent<SpriteRenderer>().sprite.bounds.extents.y * 2;
+			position.y += spriteExtents.y * wallScale.y * 2;
 		}
 	}
 
