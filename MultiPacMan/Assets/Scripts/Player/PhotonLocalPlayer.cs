@@ -32,6 +32,8 @@ namespace MultiPacMan.Player
 			movementController.directionDelegate += inputInterpreter.GetMovementDirection;
 			movementController.turboDelegate += turboController.IsTurboOn;
 
+			SpriteDirectionChanger.directionDelegate += inputInterpreter.GetMovementDirection;
+
 			scoreSerializer = Add<PhotonPlayerScoreSerializer>();
 
 			PelletEater pelletEater = Add<PelletEater>();

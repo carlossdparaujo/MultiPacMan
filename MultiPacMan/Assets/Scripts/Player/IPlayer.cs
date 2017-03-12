@@ -4,6 +4,7 @@ using MultiPacMan.Player.Turbo;
 
 namespace MultiPacMan.Player
 {
+	[RequireComponent(typeof(PlayerSpriteDirectionChanger))]
 	public abstract class IPlayer : MonoBehaviour {
 
 		public delegate void PlayerScoreUpdated(string playerName, int playerScore);
@@ -22,6 +23,12 @@ namespace MultiPacMan.Player
 
 		public abstract TurboController TurboController {
 			get;
+		}
+
+		public PlayerSpriteDirectionChanger SpriteDirectionChanger {
+			get {
+				return this.GetComponent<PlayerSpriteDirectionChanger>();
+			}
 		}
 			
 		public void UpdateScore(int value) {
