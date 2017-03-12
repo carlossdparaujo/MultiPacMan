@@ -18,6 +18,8 @@ namespace MultiPacMan.Player
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
 			NetworkedTurboController turboController = Add<NetworkedTurboController>();
 
+			SpriteDirectionChanger.directionDelegate += movementController.GetDirection;
+
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
 			receiver.positionDelegate += movementController.UpdatePosition;
 			receiver.turboDelegate += turboController.UpdateTurbo;

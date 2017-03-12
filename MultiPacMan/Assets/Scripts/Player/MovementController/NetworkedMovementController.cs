@@ -18,6 +18,8 @@ namespace MultiPacMan.Player
 		private Vector2 newPosition = Vector2.zero;
 		private Vector2 oldPosition = Vector2.zero;
 
+		private Vector2 velocity;
+
 		private bool started = false;
 
 		public override void OnStart() {
@@ -26,6 +28,8 @@ namespace MultiPacMan.Player
 		}
 
 		public void UpdatePosition(Vector2 position, Vector2 velocity) {
+			this.velocity = velocity;
+
 			switch (serializationOption) {
 			case NetworkingOptions.Interpolation:
 				MoveWithInterpolation(position, velocity);
@@ -67,6 +71,10 @@ namespace MultiPacMan.Player
 
 			t += Time.deltaTime;
 			rb.MovePosition(Vector2.Lerp(oldPosition, newPosition, t/timeWaited));
+		}
+
+		public Vector2 GetDirection() {
+			return velocity.normalized;
 		}
 	}
 }
