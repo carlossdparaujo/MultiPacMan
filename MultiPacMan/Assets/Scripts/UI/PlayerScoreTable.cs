@@ -28,7 +28,7 @@ public class PlayerScoreTable : MonoBehaviour {
 		string scores = "";
 
 		foreach (string player in playersScores.Keys) {
-			scores += player + " : " + playersScores[player] + " | ";
+			scores += player + " : " + playersScores[player] + " / ";
 		}
 
 		label.text = scores;
