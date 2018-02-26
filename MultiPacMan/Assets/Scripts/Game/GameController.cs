@@ -7,7 +7,13 @@ using MultiPacMan.Pellet;
 
 [RequireComponent(typeof(LevelCreator))]
 public class GameController : Photon.PunBehaviour {
-	
+
+	public static int EAT_PELLET_EVENT_CODE = 1;
+	public static int REMOVE_PELLET_EVENT_CODE = 2;
+	public static int END_GAME_EVENT_CODE = 3;
+
+	public static bool VALIDATION_ON = true;
+
 	[SerializeField]
 	private bool simulateLag = false;
 	[SerializeField]
@@ -17,6 +23,7 @@ public class GameController : Photon.PunBehaviour {
 
 	private LevelCreator levelCreator;
 	private static Dictionary<string, PelletBehaviour> pellets = new Dictionary<string, PelletBehaviour>();
+	private static List<int> pelletsNotEaten = new List<int>();
 	private bool gameInitiliazed = false;
 	private bool isPlaying = false;
 
@@ -65,7 +72,9 @@ public class GameController : Photon.PunBehaviour {
 		PelletBehaviour pellet = pelletGameObject.GetComponent<PelletBehaviour>();
 		pellet.Setup(score, positionOnMap.x, positionOnMap.y);
 
-		pellets.Add(positionOnMap.GetHashCode().ToString(), pellet);
+		int id = positionOnMap.GetHashCode();
+		pellets.Add(id.ToString(), pellet);
+		pelletsNotEaten.Add(id);
 
 		gameInitiliazed = true;
 	}
@@ -93,33 +102,60 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-		if ((int) eventCode == PhotonLocalPlayer.REMOVE_PELLET_EVENT_CODE) {
+		if ((int) eventCode == EAT_PELLET_EVENT_CODE) {
+			if (!PhotonNetwork.isMasterClient) {
+				return;
+			}
+
+			object[] data = (object[]) content;
+			int pelletId = (int) data[0];
+
+			if (VALIDATION_ON) {
+				if (!pelletsNotEaten.Remove(pelletId)) {
+					return;
+				}
+			}
+
+			RaiseEventOptions options = new RaiseEventOptions();
+			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+			options.Receivers = ReceiverGroup.All;
+
+			PhotonNetwork.RaiseEvent ((byte) REMOVE_PELLET_EVENT_CODE, 
+				new object[2] { pelletId, senderId }, 
+				true, options
+			);
+		} else if ((int) eventCode == REMOVE_PELLET_EVENT_CODE) {
 			object[] data = (object[]) content;
 
-			int pelletScore = (int) data[0];
-			int pelletId = (int) data[1];
-			int playerId = (int) data[2];
+			int pelletId = (int) data[0];
+			int playerId = (int) data[1];
 
-			PelletBehaviour pellet = PopPellet(pelletId);
-
+			PelletBehaviour pellet = GetPellet(pelletId);
 			if (pellet != null) {
 				pellet.DestroyAfterAnimation();
 			}
 
 			IPlayer player = GetPlayer(playerId);
-
 			if (player != null) {
-				player.AddToScore(pelletScore);
+				player.AddToScore(pellet.Score);
 			}
+
+			pelletsNotEaten.Remove(pelletId);
+		} else if ((int) eventCode == END_GAME_EVENT_CODE) {
+			if (gameEndedDelegate != null) {
+				gameEndedDelegate(getPlayersData());
+			}
+
+			isPlaying = false;
+			PhotonNetwork.LeaveRoom();
 		}
 	}
 
-	private static PelletBehaviour PopPellet(int pelletId) {
+	private static PelletBehaviour GetPellet(int pelletId) {
 		string key = pelletId.ToString();
 
 		if (pellets.ContainsKey(key)) {
 			PelletBehaviour pellet = pellets[key];
-			pellets.Remove(key);
 			return pellet;
 		}
 
@@ -141,13 +177,14 @@ public class GameController : Photon.PunBehaviour {
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
 		PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
 
-		if (pellets.Count == 0 && gameInitiliazed && isPlaying) {
-			if (gameEndedDelegate != null) {
-				gameEndedDelegate(getPlayersData());
-			}
+		if (PhotonNetwork.isMasterClient && pelletsNotEaten.Count == 0 && gameInitiliazed && isPlaying) {
+			RaiseEventOptions options = new RaiseEventOptions();
+			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+			options.Receivers = ReceiverGroup.All;
 
-			isPlaying = false;
-			PhotonNetwork.LeaveRoom();
+			PhotonNetwork.RaiseEvent ((byte) END_GAME_EVENT_CODE, 
+				null, true, options
+			);
 		}
 	}
 

@@ -39,10 +39,10 @@ namespace MultiPacMan.Pellet
 			this.point = new Point(x, y);
 
 			animator.GetBehaviour<PelletIdleAnimation>().enteredState += () => {
-				eaten = false;
-
 				if (shouldDestroy) {
 					Destroy(this.gameObject);
+				} else {
+					eaten = false;
 				}
 			};
 		}

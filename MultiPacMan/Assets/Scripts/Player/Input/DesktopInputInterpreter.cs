@@ -6,7 +6,7 @@ namespace MultiPacMan.Player.Inputs
 	public class DesktopInputInterpreter : InputInterpreter {
 
 		public override bool IsTurboOn() {
-			return Input.GetKey(KeyCode.Space);
+			return Input.GetKey(KeyCode.A);
 		}
 
 		public override Vector2 GetMovementDirection() {
