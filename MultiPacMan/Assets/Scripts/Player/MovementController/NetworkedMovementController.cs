@@ -70,7 +70,10 @@ namespace MultiPacMan.Player
 			}
 
 			t += Time.deltaTime;
-			rb.MovePosition(Vector2.Lerp(oldPosition, newPosition, t/timeWaited));
+
+			if (!oldPosition.Equals(newPosition)) {
+				rb.MovePosition(Vector2.Lerp(oldPosition, newPosition, t/timeWaited));
+			}
 		}
 
 		public Vector2 GetDirection() {
