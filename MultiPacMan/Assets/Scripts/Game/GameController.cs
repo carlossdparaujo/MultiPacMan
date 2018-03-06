@@ -85,7 +85,7 @@ public class GameController : Photon.PunBehaviour {
 		}
 
 		RoomOptions roomOptions = new RoomOptions();
-		roomOptions.maxPlayers = 4;
+		roomOptions.MaxPlayers = 4;
 
 		PhotonNetwork.JoinOrCreateRoom("Game", roomOptions, null);
 	}

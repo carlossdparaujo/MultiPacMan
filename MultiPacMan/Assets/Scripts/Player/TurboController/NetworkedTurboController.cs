@@ -4,9 +4,6 @@ using System.Collections;
 namespace MultiPacMan.Player.Turbo
 {
 	public class NetworkedTurboController : TurboController {
-
-		private bool turboOn = false;
-
 		public delegate Vector2 GetVelocity();
 		public GetVelocity getVelocityDelegate;
 
@@ -24,10 +21,6 @@ namespace MultiPacMan.Player.Turbo
 			} else {
 				trail.enabled = false;
 			}
-		}
-
-		public void UpdateTurbo(Vector2 velocity) {
-			turboOn = velocity.magnitude > 0.1f;
 		}
 	}
 }
