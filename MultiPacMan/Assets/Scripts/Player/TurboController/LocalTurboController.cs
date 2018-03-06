@@ -22,6 +22,13 @@ namespace MultiPacMan.Player.Turbo
 				return;
 			}
 
+			if (IsTurboOn()) {
+				trail.enabled = true;
+			}
+			else {
+				trail.enabled = false;
+			}
+
 			if (turboDelegate()) {
 				float turboUsed = (turboPerSecond*Time.deltaTime);
 				currentTurboCapacity = Mathf.Max(currentTurboCapacity - turboUsed, 0);

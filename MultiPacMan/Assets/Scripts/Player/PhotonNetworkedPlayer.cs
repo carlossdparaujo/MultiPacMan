@@ -17,12 +17,13 @@ namespace MultiPacMan.Player
 		void Start() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
 			NetworkedTurboController turboController = Add<NetworkedTurboController>();
+			turboController.getVelocityDelegate += movementController.GetVelocity;
 
 			SpriteDirectionChanger.directionDelegate += movementController.GetDirection;
 
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
 			receiver.positionDelegate += movementController.UpdatePosition;
-			receiver.turboDelegate += turboController.UpdateTurbo;
+			//receiver.turboDelegate += turboController.UpdateTurbo;
 
 			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
 			scoreReceiver.scoreDelegate += UpdateScore;

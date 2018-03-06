@@ -18,8 +18,6 @@ namespace MultiPacMan.Player
 		private Vector2 newPosition = Vector2.zero;
 		private Vector2 oldPosition = Vector2.zero;
 
-		private Vector2 velocity;
-
 		private bool started = false;
 
 		public override void OnStart() {
@@ -28,7 +26,7 @@ namespace MultiPacMan.Player
 		}
 
 		public void UpdatePosition(Vector2 position, Vector2 velocity) {
-			this.velocity = velocity;
+			this.currentVelocity = velocity;
 
 			switch (serializationOption) {
 			case NetworkingOptions.Interpolation:
@@ -77,7 +75,7 @@ namespace MultiPacMan.Player
 		}
 
 		public Vector2 GetDirection() {
-			return velocity.normalized;
+			return this.currentVelocity.normalized;
 		}
 	}
 }

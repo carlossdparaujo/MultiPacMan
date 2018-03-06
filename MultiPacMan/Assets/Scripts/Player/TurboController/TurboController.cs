@@ -3,9 +3,15 @@ using UnityEngine;
 
 namespace MultiPacMan.Player.Turbo
 {
-	public abstract class TurboController : MonoBehaviour {
-		public abstract bool IsTurboOn();
-		public abstract float GetTurboFuelPercentage();
+	public class TurboController : MonoBehaviour {
+		protected TrailRenderer trail;
+		void Start() {
+			trail = GetComponentInChildren<TrailRenderer>();
+			trail.enabled = false;
+		}
+
+		public virtual bool IsTurboOn() { return false; }
+		public virtual float GetTurboFuelPercentage() { return 0.0f; }
 	}
 }
 

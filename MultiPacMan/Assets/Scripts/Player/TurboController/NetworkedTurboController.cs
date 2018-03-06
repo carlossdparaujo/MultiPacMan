@@ -7,12 +7,23 @@ namespace MultiPacMan.Player.Turbo
 
 		private bool turboOn = false;
 
+		public delegate Vector2 GetVelocity();
+		public GetVelocity getVelocityDelegate;
+
 		public override float GetTurboFuelPercentage() {
 			return 0.0f;
 		}
 
 		public override bool IsTurboOn() {
-			return turboOn;
+			return getVelocityDelegate().magnitude / Time.fixedDeltaTime > 5.0f;
+		}
+
+		void Update() {
+			if (IsTurboOn ()) {
+				trail.enabled = true;
+			} else {
+				trail.enabled = false;
+			}
 		}
 
 		public void UpdateTurbo(Vector2 velocity) {
