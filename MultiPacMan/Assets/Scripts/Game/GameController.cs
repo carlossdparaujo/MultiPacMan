@@ -47,6 +47,16 @@ public class GameController : Photon.PunBehaviour {
 		return (PhotonLocalPlayer) PhotonNetwork.player.TagObject;
 	}
 
+	public static List<IPlayer> GetPlayers() {
+		List<IPlayer> playerList = new List<IPlayer>();
+
+		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+			playerList.Add((IPlayer) player.TagObject);
+		}
+
+		return playerList;
+	}
+
 	void Start() {
 		if (gameStartedDelegate != null) {
 			gameStartedDelegate();
@@ -62,7 +72,13 @@ public class GameController : Photon.PunBehaviour {
 	}
 
 	public void CreatePlayer(Vector2 position) {
-		PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0);
+		Color playerColor = randomBrightColor();
+		object[] data = new object[3] { playerColor.r, playerColor.g, playerColor.b };
+		PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0, data);
+	}
+
+	private Color randomBrightColor() {
+		return UnityEngine.Random.ColorHSV (0.0f, 1.0f, 0.5f, 1.0f, 0.6f, 1.0f);
 	}
 
 	public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
@@ -120,8 +136,8 @@ public class GameController : Photon.PunBehaviour {
 			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 			options.Receivers = ReceiverGroup.All;
 
-			PhotonNetwork.RaiseEvent ((byte) REMOVE_PELLET_EVENT_CODE, 
-				new object[2] { pelletId, senderId }, 
+			PhotonNetwork.RaiseEvent ((byte) REMOVE_PELLET_EVENT_CODE,
+				new object[2] { pelletId, senderId },
 				true, options
 			);
 		} else if ((int) eventCode == REMOVE_PELLET_EVENT_CODE) {
@@ -182,7 +198,7 @@ public class GameController : Photon.PunBehaviour {
 			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 			options.Receivers = ReceiverGroup.All;
 
-			PhotonNetwork.RaiseEvent ((byte) END_GAME_EVENT_CODE, 
+			PhotonNetwork.RaiseEvent ((byte) END_GAME_EVENT_CODE,
 				null, true, options
 			);
 		}
@@ -196,16 +212,6 @@ public class GameController : Photon.PunBehaviour {
 		}
 
 		return data;
-	}
-
-	private static List<IPlayer> GetPlayers() {
-		List<IPlayer> playerList = new List<IPlayer>();
-
-		foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-			playerList.Add((IPlayer) player.TagObject);
-		}
-
-		return playerList;
 	}
 
 	public override void OnLeftRoom() {

@@ -8,12 +8,27 @@ namespace MultiPacMan.Player
 
 		public override string PlayerName {
 			get {
-				return "Player " + GetPhotonView().viewID;
+				PhotonView photonView = GetPhotonView();
+
+				if (photonView == null) {
+					return "";
+				}
+
+				return "Player " + photonView.viewID;
 			}
 		}
 
 		void OnPhotonInstantiate(PhotonMessageInfo info) {
-			GetPhotonView().owner.TagObject = this;
+			PhotonView photonView = GetPhotonView();
+
+			float red = (float) photonView.instantiationData[0];
+			float green = (float) photonView.instantiationData[1];
+			float blue = (float) photonView.instantiationData[2];
+			this.color = new Color(red, green, blue); 
+				
+			photonView.owner.TagObject = this;
+
+			playerCreatedDelegate(PlayerName, this.color);
 		}
 
 		protected PhotonView GetPhotonView() {

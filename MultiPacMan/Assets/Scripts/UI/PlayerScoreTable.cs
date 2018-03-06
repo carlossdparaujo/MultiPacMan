@@ -4,33 +4,29 @@ using System.Collections;
 using MultiPacMan.Player;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(Text))]
 public class PlayerScoreTable : MonoBehaviour {
 
-	private Text label;
-
-	private Dictionary<string, int> playersScores = new Dictionary<string, int>();
+	[SerializeField]
+	private GameObject playerScoreCellPrefab;
+	private Dictionary<string, PlayerScoreCell> playersScores = new Dictionary<string, PlayerScoreCell>();
 
 	void Start() {
-		label = this.gameObject.GetComponent<Text>();
-		IPlayer.scoreDelegate += UpdatePlayerScore;
+		IPlayer.playerCreatedDelegate += SetUpNewPlayerCell;
+		IPlayer.scoreDelegate += UpdatePlayerCell;
 	}
 
-	private void UpdatePlayerScore(string playerName, int score) {
-		if (playersScores.ContainsKey(playerName)) {
-			playersScores[playerName] = score;
-		} else {
-			playersScores.Add(playerName, score);
-		}
+	void SetUpNewPlayerCell(string name, Color color) {
+		GameObject playerScore = Instantiate(playerScoreCellPrefab, this.transform) as GameObject;
+		PlayerScoreCell cell = playerScore.GetComponent<PlayerScoreCell>();
+
+		cell.Name = name;
+		cell.Score = 0;
+		cell.Color = color;
+
+		playersScores.Add(name, cell);
 	}
 
-	void Update () {
-		string scores = "";
-
-		foreach (string player in playersScores.Keys) {
-			scores += player + " : " + playersScores[player] + " / ";
-		}
-
-		label.text = scores;
+	void UpdatePlayerCell(string name, int score) {
+		playersScores[name].Score = score;
 	}
 }

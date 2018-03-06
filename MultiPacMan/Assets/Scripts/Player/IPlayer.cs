@@ -5,10 +5,13 @@ using MultiPacMan.Player.Turbo;
 namespace MultiPacMan.Player
 {
 	[RequireComponent(typeof(PlayerSpriteDirectionChanger))]
-	public abstract class IPlayer : MonoBehaviour {
+	public abstract class IPlayer : MonoBehaviour, IComparable<IPlayer> {
 
 		public delegate void PlayerScoreUpdated(string playerName, int playerScore);
 		public static PlayerScoreUpdated scoreDelegate;
+
+		public delegate void PlayerCreated(string playerName, Color playerColor);
+		public static PlayerCreated playerCreatedDelegate;
 
 		private int score = 0;
 		public int Score {
@@ -21,6 +24,13 @@ namespace MultiPacMan.Player
 			get;
 		}
 
+		protected Color color;
+		public Color Color {
+			get {
+				return color;
+			}
+		}
+
 		public abstract TurboController TurboController {
 			get;
 		}
@@ -30,7 +40,7 @@ namespace MultiPacMan.Player
 				return this.GetComponent<PlayerSpriteDirectionChanger>();
 			}
 		}
-			
+
 		public void UpdateScore(int value) {
 			score = value;
 			SendScoreUpdatedEvent();
@@ -54,6 +64,13 @@ namespace MultiPacMan.Player
 		protected T Add<T>() where T : MonoBehaviour {
 			return this.gameObject.AddComponent<T>();
 		}
+
+		public int CompareTo(IPlayer player) {
+			if (player.PlayerName == null) {
+				return 1;
+			}
+
+			return player.PlayerName.CompareTo(this.name);
+		}
 	}
 }
-
