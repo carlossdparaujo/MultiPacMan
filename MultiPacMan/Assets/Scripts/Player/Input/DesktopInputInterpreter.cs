@@ -1,31 +1,31 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MultiPacMan.Player.Inputs
+namespace MultiPacMan.Player.Input
 {
 	public class DesktopInputInterpreter : InputInterpreter {
 
 		public override bool IsTurboOn() {
-			return Input.GetKey(KeyCode.A);
+			return UnityEngine.Input.GetKey(KeyCode.A);
 		}
 
 		public override Vector2 GetMovementDirection() {
 			float xMovement = 0.0f;
 			float yMovement = 0.0f;
 
-			if (Input.GetKey(KeyCode.UpArrow)) {
+			if (UnityEngine.Input.GetKey(KeyCode.UpArrow)) {
 				yMovement += 1.0f;
 			} 
 
-			if (Input.GetKey(KeyCode.DownArrow)) {
+			if (UnityEngine.Input.GetKey(KeyCode.DownArrow)) {
 				yMovement -= 1.0f;
 			} 
 
-			if (Input.GetKey(KeyCode.RightArrow)) {
+			if (UnityEngine.Input.GetKey(KeyCode.RightArrow)) {
 				xMovement += 1.0f;
 			}
 
-			if (Input.GetKey(KeyCode.LeftArrow)) {
+			if (UnityEngine.Input.GetKey(KeyCode.LeftArrow)) {
 				xMovement -= 1.0f;
 			}
 

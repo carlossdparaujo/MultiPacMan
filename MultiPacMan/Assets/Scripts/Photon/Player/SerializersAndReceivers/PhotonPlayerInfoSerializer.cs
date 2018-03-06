@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Photon.Player.SerializersAndReceivers
 {
 	public class PhotonPlayerInfoSerializer : MonoBehaviour, IPunObservable {
 

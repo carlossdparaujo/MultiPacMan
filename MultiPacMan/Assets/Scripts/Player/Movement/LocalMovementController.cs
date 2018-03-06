@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
-using MultiPacMan.Player.Inputs;
+using MultiPacMan.Player.Input;
 using MultiPacMan.Player.Turbo;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Player.Movement
 {
 	public class LocalMovementController : MovementController {
 

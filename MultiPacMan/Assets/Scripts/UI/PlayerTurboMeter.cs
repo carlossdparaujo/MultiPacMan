@@ -1,24 +1,28 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using MultiPacMan.Player;
+using MultiPacMan.Photon.Player;
+using MultiPacMan.Game;
 
-[RequireComponent(typeof(Slider))]
-public class PlayerTurboMeter : MonoBehaviour {
-	
-	private Slider slider;
+namespace MultiPacMan.UI
+{
+	[RequireComponent(typeof(Slider))]
+	public class PlayerTurboMeter : MonoBehaviour {
+		
+		private Slider slider;
 
-	void Start() {
-		slider = this.gameObject.GetComponent<Slider>();
-	}
-	
-	void Update () {
-		PhotonLocalPlayer player = GameController.GetMyPlayer();
-
-		if (player == null) {
-			return;
+		void Start() {
+			slider = this.gameObject.GetComponent<Slider>();
 		}
-			
-		slider.normalizedValue = player.GetTurboFuelPercentage();
+		
+		void Update () {
+			PhotonLocalPlayer player = GameController.GetMyPlayer();
+
+			if (player == null) {
+				return;
+			}
+				
+			slider.normalizedValue = player.GetTurboFuelPercentage();
+		}
 	}
 }

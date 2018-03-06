@@ -1,11 +1,16 @@
 ﻿using System;
 using UnityEngine;
-using MultiPacMan.Player.Inputs;
+using MultiPacMan.Game;
+using MultiPacMan.Photon.Player.SerializersAndReceivers;
+using MultiPacMan.Player;
+using MultiPacMan.Player.Movement;
+using MultiPacMan.Player.Input;
 using MultiPacMan.Player.Turbo;
-using MultiPacMan.Player.Collision;
+using MultiPacMan.Player.PelletEater;
+
 using MultiPacMan.Pellet;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Photon.Player
 {
 	public class PhotonLocalPlayer : PhotonPlayer {
 			

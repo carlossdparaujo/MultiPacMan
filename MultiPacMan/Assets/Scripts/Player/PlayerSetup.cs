@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using MultiPacMan.Game;
 
 namespace MultiPacMan.Player
 {

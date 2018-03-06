@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace MultiPacMan.Player.Inputs
+namespace MultiPacMan.Player.Input
 {
 	public abstract class InputInterpreter : MonoBehaviour {
 		public abstract bool IsTurboOn();

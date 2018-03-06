@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
+using MultiPacMan.Player;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Photon.Player
 {
 	[RequireComponent(typeof(PhotonView))]
 	public abstract class PhotonPlayer : IPlayer {

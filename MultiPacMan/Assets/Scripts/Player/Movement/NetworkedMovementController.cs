@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Player.Movement
 {
 	public enum NetworkingOptions {
 		Default,

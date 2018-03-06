@@ -2,7 +2,7 @@
 using System.Collections;
 using MultiPacMan.Pellet;
 
-namespace MultiPacMan.Player.Collision
+namespace MultiPacMan.Player.PelletEater
 {
 	public class PelletCollisionDetector : MonoBehaviour {
 

@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using MultiPacMan.Player.Collision;
 using MultiPacMan.Pellet;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Player.PelletEater
 {
 	public class PelletEater : MonoBehaviour {
 

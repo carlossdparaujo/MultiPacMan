@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using MultiPacMan.Player.Inputs;
+using MultiPacMan.Player.Input;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Player.Movement
 {
 	[RequireComponent(typeof(Rigidbody2D))]
 	public class MovementController : MonoBehaviour {

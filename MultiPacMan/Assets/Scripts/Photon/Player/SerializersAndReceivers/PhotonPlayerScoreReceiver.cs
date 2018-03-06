@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MultiPacMan.Player
+namespace MultiPacMan.Photon.Player.SerializersAndReceivers
 {
 	public class PhotonPlayerScoreReceiver : MonoBehaviour {
 
