@@ -12,7 +12,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Photon.Player
 {
-	public class PhotonLocalPlayer : PhotonPlayer {
+	public class PhotonLocalPlayer : PhotonBasePlayer {
 			
 		private PhotonPlayerScoreSerializer scoreSerializer;
 

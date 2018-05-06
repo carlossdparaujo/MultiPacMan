@@ -47,6 +47,9 @@ namespace MultiPacMan.Game
 		public delegate void OnGameEnded(List<PlayerData> players);
 		public static OnGameEnded gameEndedDelegate;
 
+		public delegate void PlayerLeft(string playerName);
+		public static PlayerLeft playerLeftDelegate;
+
 		public static PhotonLocalPlayer GetMyPlayer() {
 			return (PhotonLocalPlayer) PhotonNetwork.player.TagObject;
 		}
@@ -77,7 +80,8 @@ namespace MultiPacMan.Game
 
 		public void CreatePlayer(Vector2 position) {
 			Color playerColor = randomBrightColor();
-			object[] data = new object[3] { playerColor.r, playerColor.g, playerColor.b };
+			string playerName = "Player " + GameController.GetPlayers ().Count;
+			object[] data = new object[4] { playerColor.r, playerColor.g, playerColor.b, playerName };
 			PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0, data);
 		}
 
@@ -221,6 +225,11 @@ namespace MultiPacMan.Game
 		public override void OnLeftRoom() {
 			pellets.Clear();
 			PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
+		}
+
+		public override void OnPhotonPlayerDisconnected(PhotonPlayer player) {
+			IPlayer disconnectedPlayer = (IPlayer) player.TagObject;
+			GameController.playerLeftDelegate(disconnectedPlayer.PlayerName);
 		}
 	}
 }

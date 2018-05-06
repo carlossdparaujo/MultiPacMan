@@ -5,19 +5,7 @@ using MultiPacMan.Player;
 namespace MultiPacMan.Photon.Player
 {
 	[RequireComponent(typeof(PhotonView))]
-	public abstract class PhotonPlayer : IPlayer {
-
-		public override string PlayerName {
-			get {
-				PhotonView photonView = GetPhotonView();
-
-				if (photonView == null) {
-					return "";
-				}
-
-				return "Player " + photonView.viewID;
-			}
-		}
+	public abstract class PhotonBasePlayer : IPlayer {
 
 		void OnPhotonInstantiate(PhotonMessageInfo info) {
 			PhotonView photonView = GetPhotonView();
@@ -26,6 +14,8 @@ namespace MultiPacMan.Photon.Player
 			float green = (float) photonView.instantiationData[1];
 			float blue = (float) photonView.instantiationData[2];
 			this.color = new Color(red, green, blue); 
+
+			this.playerName = (string)photonView.instantiationData [3];
 				
 			photonView.owner.TagObject = this;
 

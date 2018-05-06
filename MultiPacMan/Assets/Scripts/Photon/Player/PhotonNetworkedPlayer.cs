@@ -9,7 +9,7 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Photon.Player
 {
-	public class PhotonNetworkedPlayer : PhotonPlayer {
+	public class PhotonNetworkedPlayer : PhotonBasePlayer {
 
 		public override TurboController TurboController {
 			get {

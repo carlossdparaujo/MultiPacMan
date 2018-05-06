@@ -20,8 +20,11 @@ namespace MultiPacMan.Player
 			}
 		}
 
-		public abstract string PlayerName {
-			get;
+		protected string playerName;
+		public string PlayerName {
+			get {
+				return playerName;
+			}
 		}
 
 		protected Color color;
