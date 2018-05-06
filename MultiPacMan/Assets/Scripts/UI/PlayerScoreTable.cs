@@ -14,9 +14,30 @@ namespace MultiPacMan.UI
 		private Dictionary<string, PlayerScoreCell> playersScores = new Dictionary<string, PlayerScoreCell>();
 
 		void Start() {
-			IPlayer.playerCreatedDelegate += SetUpNewPlayerCell;
-			IPlayer.scoreDelegate += UpdatePlayerCell;
-			GameController.playerLeftDelegate += DeletePlayerCell;
+			GameController.playersStatsDelegate += UpdateCells;
+		}
+
+		void UpdateCells(PlayersStats allStats) {
+			IList<string> players = new List<string>(playersScores.Keys);
+
+			foreach (PlayerStats playerStats in allStats.Stats) {
+				string name = playerStats.Name;
+				players.Remove(name);
+
+				if (playersScores.ContainsKey(name)) {
+					UpdatePlayerCell(name, playerStats.Score);
+				} else {
+					SetUpNewPlayerCell(name, playerStats.Color);
+				}
+			}
+
+			foreach (string disconnectedPlayer in players) {
+				DeletePlayerCell(disconnectedPlayer);
+			}
+		}
+
+		void UpdatePlayerCell(string name, int score) {
+			playersScores[name].Score = score;
 		}
 
 		void SetUpNewPlayerCell(string name, Color color) {
@@ -28,10 +49,6 @@ namespace MultiPacMan.UI
 			cell.Color = color;
 
 			playersScores.Add(name, cell);
-		}
-
-		void UpdatePlayerCell(string name, int score) {
-			playersScores[name].Score = score;
 		}
 
 		void DeletePlayerCell(string name) {

@@ -7,9 +7,6 @@ namespace MultiPacMan.Player
 	[RequireComponent(typeof(PlayerSpriteDirectionChanger))]
 	public abstract class IPlayer : MonoBehaviour, IComparable<IPlayer> {
 
-		public delegate void PlayerScoreUpdated(string playerName, int playerScore);
-		public static PlayerScoreUpdated scoreDelegate;
-
 		public delegate void PlayerCreated(string playerName, Color playerColor);
 		public static PlayerCreated playerCreatedDelegate;
 
@@ -46,18 +43,10 @@ namespace MultiPacMan.Player
 
 		public void UpdateScore(int value) {
 			score = value;
-			SendScoreUpdatedEvent();
 		}
 
 		public void AddToScore(int value) {
 			score += value;
-			SendScoreUpdatedEvent();
-		}
-
-		private void SendScoreUpdatedEvent() {
-			if (scoreDelegate != null) {
-				scoreDelegate(PlayerName, score);
-			}
 		}
 
 		public float GetTurboFuelPercentage() {

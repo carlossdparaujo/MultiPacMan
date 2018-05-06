@@ -47,12 +47,8 @@ namespace MultiPacMan.Game
 		public delegate void OnGameEnded(List<PlayerData> players);
 		public static OnGameEnded gameEndedDelegate;
 
-		public delegate void PlayerLeft(string playerName);
-		public static PlayerLeft playerLeftDelegate;
-
-		public static PhotonLocalPlayer GetMyPlayer() {
-			return (PhotonLocalPlayer) PhotonNetwork.player.TagObject;
-		}
+		public delegate void GetPlayersStats(PlayersStats stats);
+		public static GetPlayersStats playersStatsDelegate;
 
 		public static List<IPlayer> GetPlayers() {
 			List<IPlayer> playerList = new List<IPlayer>();
@@ -210,6 +206,33 @@ namespace MultiPacMan.Game
 					null, true, options
 				);
 			}
+
+			try {
+				playersStatsDelegate(playersStats());
+			} catch (InvalidOperationException e) {
+				Debug.Log("Waiting for my player to connect.");
+			}
+		}
+
+		private PlayersStats playersStats() {
+			IList<IPlayer> players = GetPlayers();
+			IList<PlayerStats> allStats = new List<PlayerStats>();
+
+			foreach (IPlayer player in players) {
+				if (player == null) {
+					continue;
+				}
+
+				PlayerStats playerStats = new PlayerStats(player.PlayerName, player.Color, player.Score, player.GetTurboFuelPercentage());
+				allStats.Add(playerStats);
+			}
+
+			IPlayer myPlayer = (IPlayer) PhotonNetwork.player.TagObject;
+			if (myPlayer == null) {
+				throw new InvalidOperationException("My player still not connected.");
+			}
+
+			return new PlayersStats(allStats, myPlayer.PlayerName);
 		}
 
 		private List<PlayerData> getPlayersData() {
@@ -225,11 +248,6 @@ namespace MultiPacMan.Game
 		public override void OnLeftRoom() {
 			pellets.Clear();
 			PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
-		}
-
-		public override void OnPhotonPlayerDisconnected(PhotonPlayer player) {
-			IPlayer disconnectedPlayer = (IPlayer) player.TagObject;
-			GameController.playerLeftDelegate(disconnectedPlayer.PlayerName);
 		}
 	}
 }

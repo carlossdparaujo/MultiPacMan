@@ -13,16 +13,11 @@ namespace MultiPacMan.UI
 
 		void Start() {
 			slider = this.gameObject.GetComponent<Slider>();
+			GameController.playersStatsDelegate += UpdateTurboPercenatage;
 		}
-		
-		void Update () {
-			PhotonLocalPlayer player = GameController.GetMyPlayer();
 
-			if (player == null) {
-				return;
-			}
-				
-			slider.normalizedValue = player.GetTurboFuelPercentage();
+		void UpdateTurboPercenatage(PlayersStats stats) {
+			slider.normalizedValue = stats.MyPlayerStats.TurboFuelPercent;
 		}
 	}
 }

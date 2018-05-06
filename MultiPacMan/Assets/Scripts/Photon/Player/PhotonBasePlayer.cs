@@ -15,11 +15,9 @@ namespace MultiPacMan.Photon.Player
 			float blue = (float) photonView.instantiationData[2];
 			this.color = new Color(red, green, blue); 
 
-			this.playerName = (string)photonView.instantiationData [3];
+			this.playerName = (string) photonView.instantiationData[3];
 				
 			photonView.owner.TagObject = this;
-
-			playerCreatedDelegate(PlayerName, this.color);
 		}
 
 		protected PhotonView GetPhotonView() {
