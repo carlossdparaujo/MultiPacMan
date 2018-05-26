@@ -7,13 +7,20 @@ namespace MultiPacMan.Player
 	[RequireComponent(typeof(PlayerSpriteDirectionChanger))]
 	public abstract class IPlayer : MonoBehaviour, IComparable<IPlayer> {
 
-		public delegate void PlayerCreated(string playerName, Color playerColor);
-		public static PlayerCreated playerCreatedDelegate;
-
 		private int score = 0;
 		public int Score {
 			get {
 				return score;
+			}
+			set {
+				score = value;
+			}
+		}
+
+		protected int playerId;
+		public int PlayerId {
+			get {
+				return playerId;
 			}
 		}
 
@@ -51,6 +58,10 @@ namespace MultiPacMan.Player
 
 		public float GetTurboFuelPercentage() {
 			return TurboController.GetTurboFuelPercentage();
+		}
+
+		public PlayerStats GetStats() {
+			return new PlayerStats(PlayerName, Color, Score, GetTurboFuelPercentage());
 		}
 
 		protected T Add<T>() where T : MonoBehaviour {

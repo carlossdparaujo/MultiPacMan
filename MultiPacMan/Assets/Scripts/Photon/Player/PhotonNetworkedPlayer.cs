@@ -26,10 +26,6 @@ namespace MultiPacMan.Photon.Player
 
 			PhotonPlayerInfoReceiver receiver = Add<PhotonPlayerInfoReceiver>();
 			receiver.positionDelegate += movementController.UpdatePosition;
-			//receiver.turboDelegate += turboController.UpdateTurbo;
-
-			PhotonPlayerScoreReceiver scoreReceiver = Add<PhotonPlayerScoreReceiver>();
-			scoreReceiver.scoreDelegate += UpdateScore;
 
 			PelletEater pelletEater = Add<PelletEater>();
 			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {

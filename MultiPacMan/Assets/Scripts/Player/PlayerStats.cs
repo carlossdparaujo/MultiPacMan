@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MultiPacMan.Game
+namespace MultiPacMan.Player
 {
 	public class PlayerStats {
 

@@ -14,7 +14,9 @@ namespace MultiPacMan.Game
 
 		public static int EAT_PELLET_EVENT_CODE = 1;
 		public static int REMOVE_PELLET_EVENT_CODE = 2;
-		public static int END_GAME_EVENT_CODE = 3;
+		public static int NEW_PLAYER_ENTERED = 3;
+		public static int SET_PLAYER_SCORE = 4;
+		public static int END_GAME_EVENT_CODE = 5;
 
 		public static bool VALIDATION_ON = true;
 
@@ -75,14 +77,18 @@ namespace MultiPacMan.Game
 		}
 
 		public void CreatePlayer(Vector2 position) {
-			Color playerColor = randomBrightColor();
-			string playerName = "Player " + GameController.GetPlayers ().Count;
-			object[] data = new object[4] { playerColor.r, playerColor.g, playerColor.b, playerName };
-			PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0, data);
+			List<IPlayer> players = GetPlayers();
+
+			new PlayerCreator().CreatePlayer(position, players);
+			PlayerCreated();
 		}
 
-		private Color randomBrightColor() {
-			return UnityEngine.Random.ColorHSV (0.0f, 1.0f, 0.5f, 1.0f, 0.6f, 1.0f);
+		private void PlayerCreated() {
+			RaiseEventOptions options = new RaiseEventOptions();
+			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+			options.Receivers = ReceiverGroup.Others;
+
+			PhotonNetwork.RaiseEvent((byte) NEW_PLAYER_ENTERED, null, true, options);
 		}
 
 		public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
@@ -122,7 +128,7 @@ namespace MultiPacMan.Game
 		}
 
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if ((int) eventCode == EAT_PELLET_EVENT_CODE) {
+			if ((int)eventCode == EAT_PELLET_EVENT_CODE) {
 				if (!PhotonNetwork.isMasterClient) {
 					return;
 				}
@@ -140,7 +146,7 @@ namespace MultiPacMan.Game
 				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 				options.Receivers = ReceiverGroup.All;
 
-				PhotonNetwork.RaiseEvent ((byte) REMOVE_PELLET_EVENT_CODE,
+				PhotonNetwork.RaiseEvent((byte) REMOVE_PELLET_EVENT_CODE,
 					new object[2] { pelletId, senderId },
 					true, options
 				);
@@ -161,6 +167,28 @@ namespace MultiPacMan.Game
 				}
 
 				pelletsNotEaten.Remove(pelletId);
+			} else if ((int) eventCode == NEW_PLAYER_ENTERED) {
+				RaiseEventOptions options = new RaiseEventOptions();
+				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+				options.Receivers = ReceiverGroup.All;
+
+				IPlayer myPlayer = GetMyPlayer();
+
+				PhotonNetwork.RaiseEvent ((byte) SET_PLAYER_SCORE,
+					new object[2] { myPlayer.PlayerName, myPlayer.Score },
+					true, options
+				);
+			} else if ((int) eventCode == SET_PLAYER_SCORE) {
+				object[] data = (object[]) content;
+
+				string playerName = (string) data[0];
+				int playerScore = (int) data[1];
+
+				IPlayer player = GetPlayer(playerName);
+
+				if (player != null) {
+					player.Score = playerScore;
+				}
 			} else if ((int) eventCode == END_GAME_EVENT_CODE) {
 				if (gameEndedDelegate != null) {
 					gameEndedDelegate(getPlayersData());
@@ -177,6 +205,20 @@ namespace MultiPacMan.Game
 			if (pellets.ContainsKey(key)) {
 				PelletBehaviour pellet = pellets[key];
 				return pellet;
+			}
+
+			return null;
+		}
+
+		private static IPlayer GetPlayer(string playerName) {
+			foreach (PhotonPlayer photonPlayer in PhotonNetwork.playerList) {
+				IPlayer player = (IPlayer) photonPlayer.TagObject;
+
+				if (player.PlayerName == null) {
+					continue;
+				} else if (player.PlayerName.Equals(playerName)) {
+					return player;
+				}
 			}
 
 			return null;
@@ -209,7 +251,7 @@ namespace MultiPacMan.Game
 
 			try {
 				playersStatsDelegate(playersStats());
-			} catch (InvalidOperationException e) {
+			} catch (InvalidOperationException) {
 				Debug.Log("Waiting for my player to connect.");
 			}
 		}
@@ -223,7 +265,7 @@ namespace MultiPacMan.Game
 					continue;
 				}
 
-				PlayerStats playerStats = new PlayerStats(player.PlayerName, player.Color, player.Score, player.GetTurboFuelPercentage());
+				PlayerStats playerStats = player.GetStats();
 				allStats.Add(playerStats);
 			}
 
@@ -248,6 +290,10 @@ namespace MultiPacMan.Game
 		public override void OnLeftRoom() {
 			pellets.Clear();
 			PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
+		}
+
+		private IPlayer GetMyPlayer() {
+			return (IPlayer) PhotonNetwork.player.TagObject;
 		}
 	}
 }

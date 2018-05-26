@@ -16,6 +16,8 @@ namespace MultiPacMan.Photon.Player
 			this.color = new Color(red, green, blue); 
 
 			this.playerName = (string) photonView.instantiationData[3];
+
+			this.playerId = photonView.ownerId;
 				
 			photonView.owner.TagObject = this;
 		}

@@ -13,8 +13,6 @@ using MultiPacMan.Pellet;
 namespace MultiPacMan.Photon.Player
 {
 	public class PhotonLocalPlayer : PhotonBasePlayer {
-			
-		private PhotonPlayerScoreSerializer scoreSerializer;
 
 		public override TurboController TurboController {
 			get {
@@ -33,8 +31,6 @@ namespace MultiPacMan.Photon.Player
 			movementController.turboDelegate += turboController.IsTurboOn;
 
 			SpriteDirectionChanger.directionDelegate += inputInterpreter.GetMovementDirection;
-
-			scoreSerializer = Add<PhotonPlayerScoreSerializer>();
 
 			PelletEater pelletEater = Add<PelletEater>();
 			pelletEater.eatPelletDelegate += (PelletBehaviour pellet) => {
@@ -60,10 +56,6 @@ namespace MultiPacMan.Photon.Player
 			serializer.velocityDelegate += movementController.GetVelocity;
 
 			GetPhotonView().ObservedComponents.Add(serializer);
-		}
-
-		void OnPhotonPlayerConnected(PhotonPlayer player) {
-			scoreSerializer.UpdateScore(Score);
 		}
 	}
 }
