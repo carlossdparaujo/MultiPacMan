@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MultiPacMan.Player;
+using MultiPacMan.Game.Requests;
+using MultiPacMan.Game.Services;
 
 namespace MultiPacMan.Game
 {
@@ -17,18 +19,20 @@ namespace MultiPacMan.Game
 			{ "Sun Ship", Color.yellow }
 		};
 		private Dictionary<string, Color> remainingSchemes;
+		private PlayerCreationService service;
 
-		public PlayerCreator() {
-			remainingSchemes = new Dictionary<string, Color>(allSchemes);
+		public PlayerCreator(PlayerCreationService service) {
+			this.remainingSchemes = new Dictionary<string, Color>(allSchemes);
+			this.service = service;
 		}
 
-		public PlayerCreator(List<IPlayer> players): this() {
+		public PlayerCreator(PlayerCreationService service, List<IPlayer> players): this(service) {
 			foreach (IPlayer player in players) {
 				if (player == null) {
 					continue;
 				}
 
-				remainingSchemes.Remove(player.PlayerName);
+				this.remainingSchemes.Remove(player.PlayerName);
 			}
 		}
 
@@ -40,7 +44,7 @@ namespace MultiPacMan.Game
 			Vector2 position = SelectRandomPosition(playersPositions);
 
 			PlayerCreationRequest request = new PlayerCreationRequest(newPlayerId, name, color, position);
-			SendCreationMessage(request);
+			service.SendCreationMessage(request);
 		}
 
 		private string SelectRandomScheme(Dictionary<string, Color> schemes) {
@@ -53,46 +57,6 @@ namespace MultiPacMan.Game
 		private Vector2 SelectRandomPosition(IList<Vector2> playersPositions) {
 			int randomIndex = UnityEngine.Random.Range(0, playersPositions.Count);
 			return playersPositions[randomIndex];
-		}
-			
-		private void SendCreationMessage(PlayerCreationRequest request) {
-			RaiseEventOptions options = new RaiseEventOptions();
-			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-			options.Receivers = ReceiverGroup.All;
-
-			PhotonNetwork.RaiseEvent ((byte) Events.ALLOW_PLAYER_CREATION,
-				request.asData(),
-				true, options
-			);
-		}
-
-		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if (!ReceivedAllowCreationEvent(eventCode)) {
-				return;
-			}
-
-			CreatePlayerForOwner((object[]) content);
-		}
-
-		private bool ReceivedAllowCreationEvent(int eventCode) {
-			return eventCode == (int) Events.ALLOW_PLAYER_CREATION;
-		}
-
-		private void CreatePlayerForOwner(object[] data) {
-			PlayerCreationRequest request = new PlayerCreationRequest(data);
-
-			if (ImOwner(request.OwnerId)) {
-				CreatePlayerOnNetwork(request);
-			}
-		}
-
-		private bool ImOwner(int ownerId) {
-			return PhotonNetwork.player.ID == ownerId;
-		}
-
-		private void CreatePlayerOnNetwork(PlayerCreationRequest request) {
-			Vector3 position = new Vector3(request.PlayerPosition.x, request.PlayerPosition.y, -1.0f);
-			PhotonNetwork.Instantiate("Player", position, Quaternion.identity, 0, request.asData());
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using UnityEngine;
 using MultiPacMan.Player;
 using MultiPacMan.Game;
+using MultiPacMan.Game.Requests;
 
 namespace MultiPacMan.Photon.Player
 {

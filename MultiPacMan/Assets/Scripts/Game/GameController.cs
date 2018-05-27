@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using MultiPacMan.Player;
 using MultiPacMan.Photon.Player;
 using MultiPacMan.Pellet;
+using MultiPacMan.Game.Services;
+using MultiPacMan.Photon.Game.Services;
 using Photon;
 
 namespace MultiPacMan.Game
@@ -24,7 +26,6 @@ namespace MultiPacMan.Game
 		private static List<int> pelletsNotEaten = new List<int>();
 		private bool gameInitiliazed = false;
 		private bool isPlaying = false;
-		private PlayerCreator playerCreator = new PlayerCreator();
 
 		public struct PlayerData {
 			public readonly string name;
@@ -56,16 +57,12 @@ namespace MultiPacMan.Game
 		}
 
 		void Start() {
-			if (gameStartedDelegate != null) {
-				gameStartedDelegate();
-			}
-
 			levelCreator = this.gameObject.GetComponent<LevelCreator>();
 			levelCreator.pelletCreated += RegisterPellet;
 
 			PhotonNetwork.ConnectUsingSettings("0.0.0");
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
-			PhotonNetwork.OnEventCall += playerCreator.PhotonNetwork_OnEventCall;
+
 			isPlaying = true;
 		}
 
@@ -94,24 +91,13 @@ namespace MultiPacMan.Game
 				return;
 			}
 
-			RequestPlayerCreation();
+			if (gameStartedDelegate != null) {
+				gameStartedDelegate();
+			}
+
 			levelCreator.Create();
 
 			gameInitiliazed = true;
-		}
-			
-		private void RequestPlayerCreation() {
-			RaiseEventOptions options = new RaiseEventOptions();
-			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-			options.Receivers = ReceiverGroup.All;
-
-			PhotonNetwork.RaiseEvent((byte) Events.NEW_PLAYER_ENTERED, null, true, options);
-		}
-
-		public override void OnMasterClientSwitched(PhotonPlayer newMasterClient) {
-			base.OnMasterClientSwitched(newMasterClient);
-
-			playerCreator = new PlayerCreator(GetPlayers());
 		}
 
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
@@ -154,36 +140,6 @@ namespace MultiPacMan.Game
 				}
 
 				pelletsNotEaten.Remove(pelletId);
-			} else if ((int) eventCode == (int) Events.NEW_PLAYER_ENTERED) {
-				if (PhotonNetwork.isMasterClient) {
-					playerCreator.AllowPlayerCreation(senderId, levelCreator.GetPlayersPositions());
-				} 
-
-				RaiseEventOptions options = new RaiseEventOptions();
-				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-				options.Receivers = ReceiverGroup.All;
-
-				IPlayer myPlayer = GetMyPlayer();
-
-				if (myPlayer == null) {
-					return;
-				}
-
-				PhotonNetwork.RaiseEvent ((byte) Events.SET_PLAYER_SCORE,
-					new object[2] { myPlayer.PlayerName, myPlayer.Score },
-					true, options
-				);
-			} else if ((int) eventCode == (int) Events.SET_PLAYER_SCORE) {
-				object[] data = (object[]) content;
-
-				string playerName = (string) data[0];
-				int playerScore = (int) data[1];
-
-				IPlayer player = GetPlayer(playerName);
-
-				if (player != null) {
-					player.Score = playerScore;
-				}
 			} else if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
 				if (gameEndedDelegate != null) {
 					gameEndedDelegate(getPlayersData());

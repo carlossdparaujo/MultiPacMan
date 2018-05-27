@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
 
-namespace MultiPacMan.Game
+namespace MultiPacMan.Game.Requests
 {
-	public class PlayerCreationRequest {
+	public class PlayerCreationRequest : Request {
 
 		private int ownerId;
 		public int OwnerId {
