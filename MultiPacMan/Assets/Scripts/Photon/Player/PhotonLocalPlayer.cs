@@ -12,7 +12,8 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Photon.Player
 {
-	public class PhotonLocalPlayer : PhotonBasePlayer {
+	[RequireComponent(typeof(PhotonView))]
+	public class PhotonLocalPlayer : IPlayer {
 
 		public override TurboController TurboController {
 			get {
@@ -20,7 +21,7 @@ namespace MultiPacMan.Photon.Player
 			}
 		}
 
-		void Start() {
+		protected override void AddComponents() {
 			DesktopInputInterpreter inputInterpreter = Add<DesktopInputInterpreter>();
 
 			LocalTurboController turboController = Add<LocalTurboController>();
@@ -42,7 +43,7 @@ namespace MultiPacMan.Photon.Player
 				options.CachingOption = EventCaching.DoNotCache;
 				options.Receivers = ReceiverGroup.MasterClient;
 
-				PhotonNetwork.RaiseEvent((byte) GameController.EAT_PELLET_EVENT_CODE, 
+				PhotonNetwork.RaiseEvent((byte) Events.EAT_PELLET_EVENT_CODE, 
 					new object[1] { pelletId }, 
 					true, options
 				);
@@ -55,7 +56,7 @@ namespace MultiPacMan.Photon.Player
 			serializer.positionDelegate += movementController.GetPosition;
 			serializer.velocityDelegate += movementController.GetVelocity;
 
-			GetPhotonView().ObservedComponents.Add(serializer);
+			this.gameObject.GetComponent<PhotonView>().ObservedComponents.Add(serializer);
 		}
 	}
 }

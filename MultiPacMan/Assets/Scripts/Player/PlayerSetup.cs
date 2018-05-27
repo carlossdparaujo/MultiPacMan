@@ -9,10 +9,10 @@ namespace MultiPacMan.Player
 		[SerializeField]
 		private TextMesh playerName;
 
-		void Awake() {
+		public void StartSetup(PlayerStats stats, bool isMine) {
 			IPlayer player;
 
-			if (IsMine()) {
+			if (isMine) {
 				player = SetLocalPlayer();
 				Camera.main.GetComponent<FollowPlayer>().Follow(this.gameObject);
 			} else {
@@ -20,9 +20,9 @@ namespace MultiPacMan.Player
 			}
 
 			playerName.text = player.PlayerName;
+			player.Setup(stats);
 		}
-
-		protected abstract bool IsMine();
+			
 		protected abstract IPlayer SetLocalPlayer();
 		protected abstract IPlayer SetNetworkedPlayer();
 	}

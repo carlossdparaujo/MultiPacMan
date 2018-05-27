@@ -1,14 +1,25 @@
 ﻿using System;
 using UnityEngine;
 using MultiPacMan.Player;
+using MultiPacMan.Game;
 
 namespace MultiPacMan.Photon.Player
 {
 	[RequireComponent(typeof(PhotonView))]
 	public class PhotonPlayerSetup : PlayerSetup {
+
+		void OnPhotonInstantiate(PhotonMessageInfo info) {
+			PhotonView photonView = this.gameObject.GetComponent<PhotonView>();
+			PlayerCreationRequest request = new PlayerCreationRequest(photonView.instantiationData);
 		
-		protected override bool IsMine() {
-			return this.GetComponent<PhotonView>().isMine;
+			PlayerStats stats = new PlayerStats(request.PlayerName, request.PlayerColor, 0, 0.0f);
+			StartSetup(stats, isPlayerMine(request.OwnerId));
+
+			photonView.owner.TagObject = this.GetComponent<IPlayer>();
+        }
+
+		private bool isPlayerMine(int ownerId) {
+			return PhotonNetwork.player.ID == ownerId;
 		}
 
 		protected override IPlayer SetLocalPlayer() {

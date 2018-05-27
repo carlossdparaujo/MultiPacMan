@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Game
 {
@@ -31,18 +33,20 @@ namespace MultiPacMan.Game
 
 	public class LevelCreator : MonoBehaviour {
 
-		public delegate void CreatePlayer(Vector2 position);
-		public CreatePlayer playerDelegate; 
+		public delegate void PelletCreated(PelletBehaviour pellet, Point positionOnMap);
+		public PelletCreated pelletCreated; 
 
-		public delegate void CreatePellet(Vector2 position, int score, Point positionOnMap);
-		public CreatePellet pelletDelegate; 
+		private static int LOW_PELLET_SCORE = 1;
+		private static int HIGH_PELLET_SCORE = 5;
 
 		[SerializeField]
 		private GameObject wallPrefab;
+		[SerializeField]
+		private GameObject pelletPrefab;
 
 		private int[,] maze = new int[25, 23] {
 			{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-			{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+			{ 0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0 },
 			{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0 },
 			{ 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0 },
 			{ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
@@ -64,9 +68,31 @@ namespace MultiPacMan.Game
 			{ 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0 },
 			{ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
 			{ 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-			{ 0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 },
+			{ 0, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 0 },
 			{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 		};
+
+		public IList<Vector2> GetPlayersPositions() {
+			IList<Vector2> positions = new List<Vector2>();
+
+			for (int i = 0; i < maze.GetLength(0); ++i) {
+				for (int j = 0; j < maze.GetLength(1); ++j) {
+					if (maze[i, j] == 5) {
+						Vector3 spriteExtents = wallPrefab.GetComponent<SpriteRenderer> ().sprite.bounds.extents;
+						Vector3 wallScale = wallPrefab.transform.localScale;
+
+						Vector2 position = new Vector2(
+							spriteExtents.x * wallScale.x * 2 * j,
+							spriteExtents.y * wallScale.y * 2 * i
+						);
+
+						positions.Add(position);
+					}
+				}
+			}
+
+			return positions;
+		}
 
 		public void Create() {
 			Vector2 position = Vector2.zero;
@@ -87,31 +113,32 @@ namespace MultiPacMan.Game
 		private void CreateCell(int value, Vector2 position, Point positionOnMap) {
 			switch (value) {
 			case 0:
-				Instantiate(wallPrefab, position, Quaternion.identity);
+				CreateWall(position);
 				break;
 			case 1:
-				if (pelletDelegate == null) {
-					return;
-				}
-
-				pelletDelegate(position, 1, positionOnMap);
+				CreatePellet(LOW_PELLET_SCORE, position, positionOnMap);
 				break;
 			case 3:
-				if (pelletDelegate == null) {
-					return;
-				}
-
-				pelletDelegate(position, 5, positionOnMap);
-				break;
-			case 5:
-				if (playerDelegate == null) {
-					return;
-				}
-
-				playerDelegate(position);
+				CreatePellet(HIGH_PELLET_SCORE, position, positionOnMap);
 				break;
 			default:
 				break;
+			}
+		}
+
+		private void CreateWall(Vector2 position) {
+			Instantiate(wallPrefab, position, Quaternion.identity);
+		}
+
+		private void CreatePellet(int score, Vector2 position, Point positionOnMap) {
+			Vector3 pos = new Vector3(position.x, position.y, 0.0f);
+
+			GameObject pelletGameObject = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
+			PelletBehaviour pellet = pelletGameObject.GetComponent<PelletBehaviour>();
+			pellet.Setup(score, positionOnMap.x, positionOnMap.y);
+
+			if (pelletCreated != null) {
+				pelletCreated(pellet, positionOnMap);
 			}
 		}
 	}

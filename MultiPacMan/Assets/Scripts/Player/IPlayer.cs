@@ -17,13 +17,6 @@ namespace MultiPacMan.Player
 			}
 		}
 
-		protected int playerId;
-		public int PlayerId {
-			get {
-				return playerId;
-			}
-		}
-
 		protected string playerName;
 		public string PlayerName {
 			get {
@@ -47,6 +40,16 @@ namespace MultiPacMan.Player
 				return this.GetComponent<PlayerSpriteDirectionChanger>();
 			}
 		}
+
+		public void Setup(PlayerStats stats) {
+			this.playerName = stats.Name;
+			this.color = stats.Color;
+			this.score = stats.Score;
+
+			AddComponents();
+		}
+
+		protected abstract void AddComponents();
 
 		public void UpdateScore(int value) {
 			score = value;

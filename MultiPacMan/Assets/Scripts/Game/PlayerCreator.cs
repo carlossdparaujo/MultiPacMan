@@ -7,7 +7,7 @@ namespace MultiPacMan.Game
 {
 	public class PlayerCreator {
 
-		private Dictionary<string, Color> schemes = new Dictionary<string, Color> {
+		private Dictionary<string, Color> allSchemes = new Dictionary<string, Color> {
 			{ "Red Falcon", Color.red },
 			{ "Pink Crusader", Color.magenta },
 			{ "Spacer Gray", Color.gray },
@@ -16,40 +16,31 @@ namespace MultiPacMan.Game
 			{ "Black Torpedo", Color.black },
 			{ "Sun Ship", Color.yellow }
 		};
+		private Dictionary<string, Color> remainingSchemes;
 
-		public void CreatePlayer(Vector2 position, IList<IPlayer> players) {
-			Dictionary<string, Color> schemes = GetRemainingSchemes(players);
-
-			string name = SelectRandomScheme(schemes);
-			Color color = schemes[name];
-
-			object[] data = new object[4] { color.r, color.g, color.b, name };
-			PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0, data);
+		public PlayerCreator() {
+			remainingSchemes = new Dictionary<string, Color>(allSchemes);
 		}
 
-		private Dictionary<string, Color> GetRemainingSchemes(IList<IPlayer> players) {
-			IList<string> takenNames = GetTakenNames(players);
-			Dictionary<string, Color> remaining = new Dictionary<string, Color>(schemes);
-
-			foreach (string name in takenNames) {
-				remaining.Remove(name);
-			}
-
-			return remaining;
-		}
-
-		private IList<string> GetTakenNames(IList<IPlayer> players) {
-			IList<string> takenNames = new List<string>();
-
+		public PlayerCreator(List<IPlayer> players): this() {
 			foreach (IPlayer player in players) {
 				if (player == null) {
 					continue;
 				}
-					
-				takenNames.Add(player.PlayerName);
-			}
 
-			return takenNames;
+				remainingSchemes.Remove(player.PlayerName);
+			}
+		}
+
+		public void AllowPlayerCreation(int newPlayerId, IList<Vector2> playersPositions) {
+			string name = SelectRandomScheme(remainingSchemes);
+			Color color = remainingSchemes[name];
+			remainingSchemes.Remove(name);
+
+			Vector2 position = SelectRandomPosition(playersPositions);
+
+			PlayerCreationRequest request = new PlayerCreationRequest(newPlayerId, name, color, position);
+			SendCreationMessage(request);
 		}
 
 		private string SelectRandomScheme(Dictionary<string, Color> schemes) {
@@ -57,6 +48,51 @@ namespace MultiPacMan.Game
 			int randomIndex = UnityEngine.Random.Range(0, schemeList.Count);
 
 			return schemeList[randomIndex];
+		}
+
+		private Vector2 SelectRandomPosition(IList<Vector2> playersPositions) {
+			int randomIndex = UnityEngine.Random.Range(0, playersPositions.Count);
+			return playersPositions[randomIndex];
+		}
+			
+		private void SendCreationMessage(PlayerCreationRequest request) {
+			RaiseEventOptions options = new RaiseEventOptions();
+			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+			options.Receivers = ReceiverGroup.All;
+
+			PhotonNetwork.RaiseEvent ((byte) Events.ALLOW_PLAYER_CREATION,
+				request.asData(),
+				true, options
+			);
+		}
+
+		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
+			if (!ReceivedAllowCreationEvent(eventCode)) {
+				return;
+			}
+
+			CreatePlayerForOwner((object[]) content);
+		}
+
+		private bool ReceivedAllowCreationEvent(int eventCode) {
+			return eventCode == (int) Events.ALLOW_PLAYER_CREATION;
+		}
+
+		private void CreatePlayerForOwner(object[] data) {
+			PlayerCreationRequest request = new PlayerCreationRequest(data);
+
+			if (ImOwner(request.OwnerId)) {
+				CreatePlayerOnNetwork(request);
+			}
+		}
+
+		private bool ImOwner(int ownerId) {
+			return PhotonNetwork.player.ID == ownerId;
+		}
+
+		private void CreatePlayerOnNetwork(PlayerCreationRequest request) {
+			Vector3 position = new Vector3(request.PlayerPosition.x, request.PlayerPosition.y, -1.0f);
+			PhotonNetwork.Instantiate("Player", position, Quaternion.identity, 0, request.asData());
 		}
 	}
 }

@@ -9,7 +9,8 @@ using MultiPacMan.Pellet;
 
 namespace MultiPacMan.Photon.Player
 {
-	public class PhotonNetworkedPlayer : PhotonBasePlayer {
+	[RequireComponent(typeof(PhotonView))]
+	public class PhotonNetworkedPlayer : IPlayer {
 
 		public override TurboController TurboController {
 			get {
@@ -17,7 +18,7 @@ namespace MultiPacMan.Photon.Player
 			}
 		}
 
-		void Start() {
+		protected override void AddComponents() {
 			NetworkedMovementController movementController = Add<NetworkedMovementController>();
 			NetworkedTurboController turboController = Add<NetworkedTurboController>();
 			turboController.getVelocityDelegate += movementController.GetVelocity;
@@ -35,8 +36,9 @@ namespace MultiPacMan.Photon.Player
 			PelletCollisionDetector collisionDetector = Add<PelletCollisionDetector>();
 			collisionDetector.collisionDelegate += pelletEater.EatPellet;
 
-			GetPhotonView().ObservedComponents.Add(receiver);
+			this.gameObject.GetComponent<PhotonView>().ObservedComponents.Add(receiver);
 		}
+
 	}
 }
 

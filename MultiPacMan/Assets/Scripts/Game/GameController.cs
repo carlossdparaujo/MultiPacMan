@@ -12,26 +12,19 @@ namespace MultiPacMan.Game
 	[RequireComponent(typeof(LevelCreator))]
 	public class GameController : PunBehaviour {
 
-		public static int EAT_PELLET_EVENT_CODE = 1;
-		public static int REMOVE_PELLET_EVENT_CODE = 2;
-		public static int NEW_PLAYER_ENTERED = 3;
-		public static int SET_PLAYER_SCORE = 4;
-		public static int END_GAME_EVENT_CODE = 5;
-
 		public static bool VALIDATION_ON = true;
 
 		[SerializeField]
 		private bool simulateLag = false;
 		[SerializeField]
 		private int simulatedLagInMs = 100;
-		[SerializeField]
-		private GameObject pelletPrefab;
 
 		private LevelCreator levelCreator;
 		private static Dictionary<string, PelletBehaviour> pellets = new Dictionary<string, PelletBehaviour>();
 		private static List<int> pelletsNotEaten = new List<int>();
 		private bool gameInitiliazed = false;
 		private bool isPlaying = false;
+		private PlayerCreator playerCreator = new PlayerCreator();
 
 		public struct PlayerData {
 			public readonly string name;
@@ -68,41 +61,18 @@ namespace MultiPacMan.Game
 			}
 
 			levelCreator = this.gameObject.GetComponent<LevelCreator>();
-			levelCreator.playerDelegate += CreatePlayer;
-			levelCreator.pelletDelegate += CreatePellet;
+			levelCreator.pelletCreated += RegisterPellet;
 
 			PhotonNetwork.ConnectUsingSettings("0.0.0");
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
+			PhotonNetwork.OnEventCall += playerCreator.PhotonNetwork_OnEventCall;
 			isPlaying = true;
 		}
 
-		public void CreatePlayer(Vector2 position) {
-			List<IPlayer> players = GetPlayers();
-
-			new PlayerCreator().CreatePlayer(position, players);
-			PlayerCreated();
-		}
-
-		private void PlayerCreated() {
-			RaiseEventOptions options = new RaiseEventOptions();
-			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-			options.Receivers = ReceiverGroup.Others;
-
-			PhotonNetwork.RaiseEvent((byte) NEW_PLAYER_ENTERED, null, true, options);
-		}
-
-		public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
-			Vector3 pos = new Vector3(position.x, position.y, 0.0f);
-
-			GameObject pelletGameObject = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
-			PelletBehaviour pellet = pelletGameObject.GetComponent<PelletBehaviour>();
-			pellet.Setup(score, positionOnMap.x, positionOnMap.y);
-
+		public void RegisterPellet(PelletBehaviour pellet, Point positionOnMap) {
 			int id = positionOnMap.GetHashCode();
 			pellets.Add(id.ToString(), pellet);
 			pelletsNotEaten.Add(id);
-
-			gameInitiliazed = true;
 		}
 
 		public override void OnJoinedLobby() {
@@ -124,11 +94,28 @@ namespace MultiPacMan.Game
 				return;
 			}
 
+			RequestPlayerCreation();
 			levelCreator.Create();
+
+			gameInitiliazed = true;
+		}
+			
+		private void RequestPlayerCreation() {
+			RaiseEventOptions options = new RaiseEventOptions();
+			options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+			options.Receivers = ReceiverGroup.All;
+
+			PhotonNetwork.RaiseEvent((byte) Events.NEW_PLAYER_ENTERED, null, true, options);
+		}
+
+		public override void OnMasterClientSwitched(PhotonPlayer newMasterClient) {
+			base.OnMasterClientSwitched(newMasterClient);
+
+			playerCreator = new PlayerCreator(GetPlayers());
 		}
 
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if ((int)eventCode == EAT_PELLET_EVENT_CODE) {
+			if ((int)eventCode == (int) Events.EAT_PELLET_EVENT_CODE) {
 				if (!PhotonNetwork.isMasterClient) {
 					return;
 				}
@@ -146,11 +133,11 @@ namespace MultiPacMan.Game
 				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 				options.Receivers = ReceiverGroup.All;
 
-				PhotonNetwork.RaiseEvent((byte) REMOVE_PELLET_EVENT_CODE,
+				PhotonNetwork.RaiseEvent((byte) Events.REMOVE_PELLET_EVENT_CODE,
 					new object[2] { pelletId, senderId },
 					true, options
 				);
-			} else if ((int) eventCode == REMOVE_PELLET_EVENT_CODE) {
+			} else if ((int) eventCode == (int) Events.REMOVE_PELLET_EVENT_CODE) {
 				object[] data = (object[]) content;
 
 				int pelletId = (int) data[0];
@@ -167,18 +154,26 @@ namespace MultiPacMan.Game
 				}
 
 				pelletsNotEaten.Remove(pelletId);
-			} else if ((int) eventCode == NEW_PLAYER_ENTERED) {
+			} else if ((int) eventCode == (int) Events.NEW_PLAYER_ENTERED) {
+				if (PhotonNetwork.isMasterClient) {
+					playerCreator.AllowPlayerCreation(senderId, levelCreator.GetPlayersPositions());
+				} 
+
 				RaiseEventOptions options = new RaiseEventOptions();
 				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 				options.Receivers = ReceiverGroup.All;
 
 				IPlayer myPlayer = GetMyPlayer();
 
-				PhotonNetwork.RaiseEvent ((byte) SET_PLAYER_SCORE,
+				if (myPlayer == null) {
+					return;
+				}
+
+				PhotonNetwork.RaiseEvent ((byte) Events.SET_PLAYER_SCORE,
 					new object[2] { myPlayer.PlayerName, myPlayer.Score },
 					true, options
 				);
-			} else if ((int) eventCode == SET_PLAYER_SCORE) {
+			} else if ((int) eventCode == (int) Events.SET_PLAYER_SCORE) {
 				object[] data = (object[]) content;
 
 				string playerName = (string) data[0];
@@ -189,7 +184,7 @@ namespace MultiPacMan.Game
 				if (player != null) {
 					player.Score = playerScore;
 				}
-			} else if ((int) eventCode == END_GAME_EVENT_CODE) {
+			} else if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
 				if (gameEndedDelegate != null) {
 					gameEndedDelegate(getPlayersData());
 				}
@@ -214,7 +209,7 @@ namespace MultiPacMan.Game
 			foreach (PhotonPlayer photonPlayer in PhotonNetwork.playerList) {
 				IPlayer player = (IPlayer) photonPlayer.TagObject;
 
-				if (player.PlayerName == null) {
+				if (player == null || player.PlayerName == null) {
 					continue;
 				} else if (player.PlayerName.Equals(playerName)) {
 					return player;
@@ -244,7 +239,7 @@ namespace MultiPacMan.Game
 				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
 				options.Receivers = ReceiverGroup.All;
 
-				PhotonNetwork.RaiseEvent ((byte) END_GAME_EVENT_CODE,
+				PhotonNetwork.RaiseEvent ((byte) Events.END_GAME_EVENT_CODE,
 					null, true, options
 				);
 			}
@@ -262,8 +257,11 @@ namespace MultiPacMan.Game
 
 			foreach (IPlayer player in players) {
 				if (player == null) {
+					Debug.Log(player + " is  anull player");
 					continue;
 				}
+
+				Debug.Log(player.PlayerName + " is a player");
 
 				PlayerStats playerStats = player.GetStats();
 				allStats.Add(playerStats);

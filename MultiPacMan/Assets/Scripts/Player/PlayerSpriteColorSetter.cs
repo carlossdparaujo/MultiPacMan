@@ -10,7 +10,7 @@ namespace MultiPacMan.Player
 		private GameObject sprite;
 
 		void Update() {
-			IPlayer player = GetComponent<MultiPacMan.Photon.Player.PhotonBasePlayer>();
+			IPlayer player = GetComponent<IPlayer>();
 
 			if (player == null) {
 				return;
