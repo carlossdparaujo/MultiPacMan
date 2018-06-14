@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using MultiPacMan.Game;
+using MultiPacMan.Player;
 
 namespace MultiPacMan.UI
 {
@@ -27,23 +28,23 @@ namespace MultiPacMan.UI
 			this.gameObject.SetActive(false);
 		}
 
-		void HandleOnGameEnded(List<GameController.PlayerData> players) {
+		void HandleOnGameEnded(PlayersStats playersStats) {
 			int maxScore = 0;
 			string winner = "";
 			scores.text = "";
 
-			foreach (GameController.PlayerData data in players) {
-				if (data.score > maxScore) {
-					maxScore = data.score;
-					winner = data.name;
-				} else if (data.score == maxScore) {
-					if (winner.CompareTo(data.name) > 0) {
-						maxScore = data.score;
-						winner = data.name;
+			foreach (PlayerStats stats in playersStats.Stats) {
+				if (stats.Score > maxScore) {
+					maxScore = stats.Score;
+					winner = stats.Name;
+				} else if (stats.Score == maxScore) {
+					if (winner.CompareTo(stats.Name) > 0) {
+						maxScore = stats.Score;
+						winner = stats.Name;
 					}
 				}
 					
-				scores.text += data.name + ": " + data.score + "\n";
+				scores.text += stats.Name + ": " + stats.Score + "\n";
 			}
 
 			winnerName.text = winner;

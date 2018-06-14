@@ -21,7 +21,7 @@ namespace MultiPacMan.UI
 			this.gameObject.SetActive(true);
 		}
 
-		void HandleOnGameEnded(List<GameController.PlayerData> players) {
+		void HandleOnGameEnded(PlayersStats players) {
 			this.gameObject.SetActive(false);
 		}
 	}

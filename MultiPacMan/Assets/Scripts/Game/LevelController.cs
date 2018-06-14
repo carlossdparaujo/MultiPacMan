@@ -24,7 +24,7 @@ namespace MultiPacMan.Game
 			levelCreator.pelletCreated += RegisterPellet;
 
 			GameController.gameStartedDelegate += levelCreator.Create;
-			GameController.gameEndedDelegate += (List<GameController.PlayerData> stats) => pellets.Clear();
+			GameController.gameEndedDelegate += (PlayersStats stats) => pellets.Clear();
 
 			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 		}

@@ -21,34 +21,14 @@ namespace MultiPacMan.Game
 		private bool gameInitiliazed = false;
 		private bool isPlaying = false;
 
-		public struct PlayerData {
-			public readonly string name;
-			public readonly int score;
-
-			public PlayerData(string name, int score) {
-				this.name = name;
-				this.score = score;
-			}
-		}
-
 		public delegate void OnGameStarted();
 		public static OnGameStarted gameStartedDelegate;
 
-		public delegate void OnGameEnded(List<PlayerData> players);
+		public delegate void OnGameEnded(PlayersStats stats);
 		public static OnGameEnded gameEndedDelegate;
 
 		public delegate void GetPlayersStats(PlayersStats stats);
 		public static GetPlayersStats playersStatsDelegate;
-
-		public static List<IPlayer> GetPlayers() {
-			List<IPlayer> playerList = new List<IPlayer>();
-
-			foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-				playerList.Add((IPlayer) player.TagObject);
-			}
-
-			return playerList;
-		}
 
 		void Start() {
 			PhotonNetwork.ConnectUsingSettings("0.0.0");
@@ -88,7 +68,7 @@ namespace MultiPacMan.Game
 		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
 			if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
 				if (gameEndedDelegate != null) {
-					gameEndedDelegate(getPlayersData());
+					gameEndedDelegate(playersStats());
 				}
 
 				isPlaying = false;
@@ -141,14 +121,14 @@ namespace MultiPacMan.Game
 			return new PlayersStats(allStats, myPlayer.PlayerName);
 		}
 
-		private List<PlayerData> getPlayersData() {
-			List<PlayerData> data = new List<PlayerData>();
+		private List<IPlayer> GetPlayers() {
+			List<IPlayer> playerList = new List<IPlayer>();
 
-			foreach (IPlayer player in GetPlayers()) {
-				data.Add(new PlayerData(player.PlayerName, player.Score));
+			foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+				playerList.Add((IPlayer) player.TagObject);
 			}
 
-			return data;
+			return playerList;
 		}
 
 		public override void OnLeftRoom() {
