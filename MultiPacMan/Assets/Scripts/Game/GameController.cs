@@ -13,11 +13,6 @@ namespace MultiPacMan.Game
 {
 	public class GameController : PunBehaviour {
 
-		[SerializeField]
-		private bool simulateLag = false;
-		[SerializeField]
-		private int simulatedLagInMs = 100;
-
 		private bool gameInitiliazed = false;
 		private bool isPlaying = false;
 
@@ -89,10 +84,6 @@ namespace MultiPacMan.Game
 		}
 
 		void Update() {
-			PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
-			PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
-			PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
-
 			try {
 				playersStatsDelegate(playersStats());
 			} catch (InvalidOperationException) {
