@@ -16,7 +16,7 @@ namespace MultiPacMan.UI
 		}
 
 		public void TurnValidationOff(bool value) {
-			GameController.VALIDATION_ON = !value;
+			LevelController.VALIDATION_ON = !value;
 		}
 	}
 }
