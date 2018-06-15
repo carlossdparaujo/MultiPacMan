@@ -14,17 +14,12 @@ namespace MultiPacMan.UI {
         private Text scores;
 
         void Awake () {
-            GameController.gameStartedDelegate += HandleOnGameStarted;
             GameController.gameEndedDelegate += HandleOnGameEnded;
+            this.gameObject.SetActive (false);
         }
 
         void OnDestroy () {
-            GameController.gameStartedDelegate -= HandleOnGameStarted;
             GameController.gameEndedDelegate -= HandleOnGameEnded;
-        }
-
-        void HandleOnGameStarted () {
-            this.gameObject.SetActive (false);
         }
 
         void HandleOnGameEnded (PlayersStats playersStats) {

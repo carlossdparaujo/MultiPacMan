@@ -9,6 +9,7 @@ namespace MultiPacMan.UI {
         void Awake () {
             GameController.gameStartedDelegate += HandleOnGameStarted;
             GameController.gameEndedDelegate += HandleOnGameEnded;
+            this.gameObject.SetActive (false);
         }
 
         void OnDestroy () {
