@@ -1,16 +1,15 @@
-﻿using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
-namespace MultiPacMan.Pellet
-{
-	public class PelletIdleAnimation : StateMachineBehaviour {
+namespace MultiPacMan.Pellet {
+    public class PelletIdleAnimation : StateMachineBehaviour {
 
-		public delegate void EnteredState();
-		public EnteredState enteredState;
+        public delegate void EnteredState ();
+        public EnteredState enteredState;
 
-		override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-			animator.SetBool("eaten", false);
-			enteredState();
-		}
-	}
+        override public void OnStateEnter (Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+            animator.SetBool ("eaten", false);
+            enteredState ();
+        }
+    }
 }

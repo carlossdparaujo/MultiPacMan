@@ -1,22 +1,21 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
+using MultiPacMan.Game;
 using UnityEngine;
 using UnityEngine.UI;
-using MultiPacMan.Game;
 
-namespace MultiPacMan.UI
-{
-	public class MasterOptions : MonoBehaviour {
-		
-		[SerializeField]
-		private Toggle disableValidationToggle;
+namespace MultiPacMan.UI {
+    public class MasterOptions : MonoBehaviour {
 
-		void Update() {
-			disableValidationToggle.gameObject.SetActive(PhotonNetwork.isMasterClient);
-		}
+        [SerializeField]
+        private Toggle disableValidationToggle;
 
-		public void TurnValidationOff(bool value) {
-			LevelController.VALIDATION_ON = !value;
-		}
-	}
+        void Update () {
+            disableValidationToggle.gameObject.SetActive (PhotonNetwork.isMasterClient);
+        }
+
+        public void TurnValidationOff (bool value) {
+            LevelController.VALIDATION_ON = !value;
+        }
+    }
 }

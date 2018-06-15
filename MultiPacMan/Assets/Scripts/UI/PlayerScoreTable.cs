@@ -1,61 +1,60 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
-using MultiPacMan.Player;
-using MultiPacMan.Game;
 using System.Collections.Generic;
+using MultiPacMan.Game;
+using MultiPacMan.Player;
+using UnityEngine;
+using UnityEngine.UI;
 
-namespace MultiPacMan.UI
-{
-	public class PlayerScoreTable : MonoBehaviour {
+namespace MultiPacMan.UI {
+    public class PlayerScoreTable : MonoBehaviour {
 
-		[SerializeField]
-		private GameObject playerScoreCellPrefab;
-		private Dictionary<string, PlayerScoreCell> playersScores = new Dictionary<string, PlayerScoreCell>();
+        [SerializeField]
+        private GameObject playerScoreCellPrefab;
+        private Dictionary<string, PlayerScoreCell> playersScores = new Dictionary<string, PlayerScoreCell> ();
 
-		void Start() {
-			GameController.playersStatsDelegate += UpdateCells;
-		}
+        void Start () {
+            GameController.playersStatsDelegate += UpdateCells;
+        }
 
-		void UpdateCells(PlayersStats allStats) {
-			IList<string> players = new List<string>(playersScores.Keys);
+        void UpdateCells (PlayersStats allStats) {
+            IList<string> players = new List<string> (playersScores.Keys);
 
-			foreach (PlayerStats playerStats in allStats.Stats) {
-				string name = playerStats.Name;
-				players.Remove(name);
+            foreach (PlayerStats playerStats in allStats.Stats) {
+                string name = playerStats.Name;
+                players.Remove (name);
 
-				if (playersScores.ContainsKey(name)) {
-					UpdatePlayerCell(name, playerStats.Score);
-				} else {
-					SetUpNewPlayerCell(name, playerStats.Color);
-				}
-			}
+                if (playersScores.ContainsKey (name)) {
+                    UpdatePlayerCell (name, playerStats.Score);
+                } else {
+                    SetUpNewPlayerCell (name, playerStats.Color);
+                }
+            }
 
-			foreach (string disconnectedPlayer in players) {
-				DeletePlayerCell(disconnectedPlayer);
-			}
-		}
+            foreach (string disconnectedPlayer in players) {
+                DeletePlayerCell (disconnectedPlayer);
+            }
+        }
 
-		void UpdatePlayerCell(string name, int score) {
-			playersScores[name].Score = score;
-		}
+        void UpdatePlayerCell (string name, int score) {
+            playersScores[name].Score = score;
+        }
 
-		void SetUpNewPlayerCell(string name, Color color) {
-			GameObject playerScore = Instantiate(playerScoreCellPrefab, this.transform) as GameObject;
-			PlayerScoreCell cell = playerScore.GetComponent<PlayerScoreCell>();
+        void SetUpNewPlayerCell (string name, Color color) {
+            GameObject playerScore = Instantiate (playerScoreCellPrefab, this.transform) as GameObject;
+            PlayerScoreCell cell = playerScore.GetComponent<PlayerScoreCell> ();
 
-			cell.Name = name;
-			cell.Score = 0;
-			cell.Color = color;
+            cell.Name = name;
+            cell.Score = 0;
+            cell.Color = color;
 
-			playersScores.Add(name, cell);
-		}
+            playersScores.Add (name, cell);
+        }
 
-		void DeletePlayerCell(string name) {
-			PlayerScoreCell cell = playersScores[name];
+        void DeletePlayerCell (string name) {
+            PlayerScoreCell cell = playersScores[name];
 
-			playersScores.Remove(name);
-			GameObject.DestroyImmediate(cell.gameObject);
-		}
-	}
+            playersScores.Remove (name);
+            GameObject.DestroyImmediate (cell.gameObject);
+        }
+    }
 }

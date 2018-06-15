@@ -1,26 +1,25 @@
-﻿using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
-namespace MultiPacMan.Game
-{
-	public class FollowPlayer : MonoBehaviour {
+namespace MultiPacMan.Game {
+    public class FollowPlayer : MonoBehaviour {
 
-		private GameObject target;
+        private GameObject target;
 
-		public void Follow(GameObject target) {
-			this.target = target;
-		}
-		
-		void LateUpdate() {
-			if (target == null) {
-				return;
-			}
+        public void Follow (GameObject target) {
+            this.target = target;
+        }
 
-			this.transform.position = new Vector3(
-				target.transform.position.x, 
-				target.transform.position.y, 
-				this.transform.position.z
-			);
-		}
-	}
+        void LateUpdate () {
+            if (target == null) {
+                return;
+            }
+
+            this.transform.position = new Vector3 (
+                target.transform.position.x,
+                target.transform.position.y,
+                this.transform.position.z
+            );
+        }
+    }
 }

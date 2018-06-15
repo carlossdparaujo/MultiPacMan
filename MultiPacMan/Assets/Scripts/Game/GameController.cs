@@ -1,133 +1,136 @@
-﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MultiPacMan.Player;
-using MultiPacMan.Photon.Player;
-using MultiPacMan.Pellet;
 using MultiPacMan.Game.Services;
+using MultiPacMan.Pellet;
 using MultiPacMan.Photon.Game.Services;
+using MultiPacMan.Photon.Player;
+using MultiPacMan.Player;
 using Photon;
+using UnityEngine;
 
-namespace MultiPacMan.Game
-{
-	public class GameController : PunBehaviour {
+namespace MultiPacMan.Game {
+    public class GameController : PunBehaviour {
 
-		private bool gameInitiliazed = false;
-		private bool isPlaying = false;
+        private bool gameInitiliazed = false;
+        private bool isPlaying = false;
 
-		public delegate void OnGameStarted();
-		public static OnGameStarted gameStartedDelegate;
+        public delegate void OnGameStarted ();
+        public static OnGameStarted gameStartedDelegate;
 
-		public delegate void OnGameEnded(PlayersStats stats);
-		public static OnGameEnded gameEndedDelegate;
+        public delegate void OnGameEnded (PlayersStats stats);
+        public static OnGameEnded gameEndedDelegate;
 
-		public delegate void GetPlayersStats(PlayersStats stats);
-		public static GetPlayersStats playersStatsDelegate;
+        public delegate void GetPlayersStats (PlayersStats stats);
+        public static GetPlayersStats playersStatsDelegate;
 
-		void Start() {
-			PhotonNetwork.ConnectUsingSettings("0.0.0");
-			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
+        public int playersToStart = 2;
 
-			LevelController.gameEndedDelegate += NotifyEndGame;
+        void Start () {
+            PhotonNetwork.ConnectUsingSettings ("0.0.0");
+            PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 
-			isPlaying = true;
-		}
+            LevelController.gameEndedDelegate += NotifyEndGame;
 
-		public override void OnJoinedLobby() {
-			if (isPlaying == false) {
-				return;
-			}
+            isPlaying = true;
+        }
 
-			RoomOptions roomOptions = new RoomOptions();
-			roomOptions.MaxPlayers = 4;
+        public override void OnJoinedLobby () {
+            if (isPlaying == false) {
+                return;
+            }
 
-			PhotonNetwork.JoinOrCreateRoom("Game", roomOptions, null);
-		}
+            RoomOptions roomOptions = new RoomOptions ();
+            roomOptions.MaxPlayers = 4;
 
-		public override void OnJoinedRoom() {
-			base.OnJoinedRoom();
+            PhotonNetwork.JoinOrCreateRoom ("Game", roomOptions, null);
+        }
 
-			if (isPlaying == false) {
-				PhotonNetwork.LeaveRoom();
-				return;
-			}
+        public override void OnJoinedRoom () {
+            base.OnJoinedRoom ();
 
-			if (gameStartedDelegate != null) {
-				gameStartedDelegate();
-			}
+            if (isPlaying == false) {
+                PhotonNetwork.LeaveRoom ();
+                return;
+            }
+        }
 
-			gameInitiliazed = true;
-		}
+        public void PhotonNetwork_OnEventCall (byte eventCode, object content, int senderId) {
+            if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
+                if (gameEndedDelegate != null) {
+                    gameEndedDelegate (playersStats ());
+                }
 
-		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
-				if (gameEndedDelegate != null) {
-					gameEndedDelegate(playersStats());
-				}
+                isPlaying = false;
+                PhotonNetwork.LeaveRoom ();
+            }
+        }
 
-				isPlaying = false;
-				PhotonNetwork.LeaveRoom();
-			}
-		}
+        public void NotifyEndGame () {
+            if (PhotonNetwork.isMasterClient && gameInitiliazed && isPlaying) {
+                RaiseEventOptions options = new RaiseEventOptions ();
+                options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+                options.Receivers = ReceiverGroup.All;
 
-		public void NotifyEndGame() {
-			if (PhotonNetwork.isMasterClient && gameInitiliazed && isPlaying) {
-				RaiseEventOptions options = new RaiseEventOptions();
-				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-				options.Receivers = ReceiverGroup.All;
+                PhotonNetwork.RaiseEvent ((byte) Events.END_GAME_EVENT_CODE,
+                    null, true, options
+                );
+            }
+        }
 
-				PhotonNetwork.RaiseEvent ((byte) Events.END_GAME_EVENT_CODE,
-					null, true, options
-				);
-			}
-		}
+        void Update () {
+            if (!gameInitiliazed && PhotonNetwork.playerList.Length >= playersToStart) {
+                if (gameStartedDelegate != null) {
+                    gameStartedDelegate ();
+                }
 
-		void Update() {
-			try {
-				playersStatsDelegate(playersStats());
-			} catch (InvalidOperationException) {
-				// Waiting for my player to connect
-			}
-		}
+                gameInitiliazed = true;
+            }
 
-		private PlayersStats playersStats() {
-			IList<IPlayer> players = GetPlayers();
-			IList<PlayerStats> allStats = new List<PlayerStats>();
+            try {
+                playersStatsDelegate (playersStats ());
+            } catch (InvalidOperationException) {
+                // Waiting for my player to connect
+            }
+        }
 
-			foreach (IPlayer player in players) {
-				if (player == null) {
-					continue;
-				}
+        private PlayersStats playersStats () {
+            IList<IPlayer> players = GetPlayers ();
+            IList<PlayerStats> allStats = new List<PlayerStats> ();
 
-				PlayerStats playerStats = player.GetStats();
-				allStats.Add(playerStats);
-			}
+            foreach (IPlayer player in players) {
+                if (player == null) {
+                    continue;
+                }
 
-			IPlayer myPlayer = (IPlayer) PhotonNetwork.player.TagObject;
-			if (myPlayer == null) {
-				throw new InvalidOperationException("My player still not connected.");
-			}
+                PlayerStats playerStats = player.GetStats ();
+                allStats.Add (playerStats);
+            }
 
-			return new PlayersStats(allStats, myPlayer.PlayerName);
-		}
+            IPlayer myPlayer = (IPlayer) PhotonNetwork.player.TagObject;
+            if (myPlayer == null) {
+                throw new InvalidOperationException ("My player still not connected.");
+            }
 
-		private List<IPlayer> GetPlayers() {
-			List<IPlayer> playerList = new List<IPlayer>();
+            return new PlayersStats (allStats, myPlayer.PlayerName);
+        }
 
-			foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-				playerList.Add((IPlayer) player.TagObject);
-			}
+        private List<IPlayer> GetPlayers () {
+            List<IPlayer> playerList = new List<IPlayer> ();
 
-			return playerList;
-		}
+            foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+                playerList.Add ((IPlayer) player.TagObject);
+            }
 
-		public override void OnLeftRoom() {
-			PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
-		}
+            return playerList;
+        }
 
-		private IPlayer GetMyPlayer() {
-			return (IPlayer) PhotonNetwork.player.TagObject;
-		}
-	}
+        public override void OnLeftRoom () {
+            PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
+        }
+
+        private IPlayer GetMyPlayer () {
+            return (IPlayer) PhotonNetwork.player.TagObject;
+        }
+    }
 }
