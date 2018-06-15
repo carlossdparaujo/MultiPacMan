@@ -15,6 +15,9 @@ namespace MultiPacMan.Game {
         private bool gameInitiliazed = false;
         private bool isPlaying = false;
 
+        public delegate void OnRoomEntered ();
+        public static OnRoomEntered roomEnteredDelegate;
+
         public delegate void OnGameStarted ();
         public static OnGameStarted gameStartedDelegate;
 
@@ -52,6 +55,10 @@ namespace MultiPacMan.Game {
             if (isPlaying == false) {
                 PhotonNetwork.LeaveRoom ();
                 return;
+            }
+
+            if (roomEnteredDelegate != null) {
+                roomEnteredDelegate();
             }
         }
 

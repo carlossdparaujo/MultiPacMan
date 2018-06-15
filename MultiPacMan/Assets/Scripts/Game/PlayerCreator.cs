@@ -34,14 +34,17 @@ namespace MultiPacMan.Game {
             }
         }
 
-        public void AllowPlayerCreation (int newPlayerId, IList<Vector2> playersPositions) {
+        public PlayerCreationRequest GeneratePlayer(int newPlayerId, IList<Vector2> playersPositions) {
             string name = SelectRandomScheme (remainingSchemes);
             Color color = remainingSchemes[name];
             remainingSchemes.Remove (name);
 
             Vector2 position = SelectRandomPosition (playersPositions);
 
-            PlayerCreationRequest request = new PlayerCreationRequest (newPlayerId, name, color, position);
+            return new PlayerCreationRequest (newPlayerId, name, color, position);
+        }
+
+        public void AllowPlayerCreation (PlayerCreationRequest request) {
             service.SendCreationMessage (request);
         }
 

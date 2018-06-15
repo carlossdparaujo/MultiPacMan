@@ -14,15 +14,33 @@ namespace MultiPacMan.Game {
         private PlayerCreator playerCreator;
         private LevelCreator levelCreator;
 
+        private PlayerCreationRequest playerCreationRequest;
+        private bool gameStarted = false;
+
         void Start () {
             PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
-            GameController.gameStartedDelegate += RequestPlayerCreation;
+            GameController.roomEnteredDelegate += RequestPlayerCreation;
+            GameController.gameStartedDelegate += CreatePlayer;
 
             PhotonPlayerCreationService service = new PhotonPlayerCreationService ();
-            PhotonNetwork.OnEventCall += service.PhotonNetwork_OnEventCall;
 
             playerCreator = new PlayerCreator (service);
             levelCreator = this.gameObject.GetComponent<LevelCreator> ();
+
+            // Generate name and color
+            RaiseEventOptions options = new RaiseEventOptions ();
+            options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+            options.Receivers = ReceiverGroup.All;
+
+            PhotonNetwork.RaiseEvent ((byte) Events.NEW_PLAYER_ENTERED, null, true, options);
+        }
+
+        public void CreatePlayer() {
+            if (playerCreationRequest != null) {
+                playerCreator.AllowPlayerCreation(playerCreationRequest);
+            }
+
+            gameStarted = true;
         }
 
         public void RequestPlayerCreation () {
@@ -38,16 +56,43 @@ namespace MultiPacMan.Game {
                 SendMyUpdatedScore ();
 
                 if (PhotonNetwork.isMasterClient) {
-                    playerCreator.AllowPlayerCreation (senderId, levelCreator.GetPlayersPositions ());
+                    PlayerCreationRequest request = playerCreator.GeneratePlayer(senderId, levelCreator.GetPlayersPositions());
+
+                    RaiseEventOptions options = new RaiseEventOptions ();
+                    options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+                    options.Receivers = ReceiverGroup.All;
+
+                    PhotonNetwork.RaiseEvent ((byte) Events.ALLOW_PLAYER_CREATION,
+                        request.asData (),
+                        true, options
+                    );
                 }
             } else if (ReceivedSetPlayerScoreEvent ((int) eventCode)) {
                 PlayerScoreRequest request = new PlayerScoreRequest ((object[]) content);
                 UpdatePlayerScore (request);
+            } else if (ReceivedAllowPlayerCreationEvent((int) eventCode)) {
+                PlayerCreationRequest request = new PlayerCreationRequest((object[]) content);
+
+                if (PhotonNetwork.player.ID == request.OwnerId) {
+                    this.playerCreationRequest = request;
+                    
+                    if (gameStarted) {
+                        CreatePlayer();
+                    }
+                }
             }
         }
 
         private bool ReceivedNewPlayerEvent (int eventCode) {
             return eventCode == (int) Events.NEW_PLAYER_ENTERED;
+        }
+
+        private bool ReceivedSetPlayerScoreEvent (int eventCode) {
+            return eventCode == (int) Events.SET_PLAYER_SCORE;
+        }
+
+        private bool ReceivedAllowPlayerCreationEvent (int eventCode) {
+            return eventCode == (int) Events.ALLOW_PLAYER_CREATION;
         }
 
         private void SendMyUpdatedScore () {
@@ -69,10 +114,6 @@ namespace MultiPacMan.Game {
 
         private IPlayer GetMyPlayer () {
             return (IPlayer) PhotonNetwork.player.TagObject;
-        }
-
-        private bool ReceivedSetPlayerScoreEvent (int eventCode) {
-            return eventCode == (int) Events.SET_PLAYER_SCORE;
         }
 
         private void UpdatePlayerScore (PlayerScoreRequest request) {

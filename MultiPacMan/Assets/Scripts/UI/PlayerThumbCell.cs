@@ -5,10 +5,11 @@ using UnityEngine.UI;
 
 namespace MultiPacMan.UI {
     [RequireComponent (typeof (Image))]
-    public class PlayerScoreCell : MonoBehaviour {
+    public class PlayerThumbCell : MonoBehaviour {
 
         [SerializeField]
         private Text text;
+        public bool showScore = true;
 
         private string name;
         public string Name {
@@ -36,7 +37,10 @@ namespace MultiPacMan.UI {
         }
 
         void Update () {
-            text.text = name + "\nSCORE: " + score;
+            text.text = name;
+            if (showScore) {
+                text.text = text.text + "\nSCORE: " + score;
+            }
         }
     }
 }

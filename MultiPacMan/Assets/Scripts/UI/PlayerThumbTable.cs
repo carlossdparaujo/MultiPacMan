@@ -6,24 +6,26 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace MultiPacMan.UI {
-    public class PlayerScoreTable : MonoBehaviour {
+    public class PlayerThumbTable : MonoBehaviour {
 
         [SerializeField]
-        private GameObject playerScoreCellPrefab;
-        private Dictionary<string, PlayerScoreCell> playersScores = new Dictionary<string, PlayerScoreCell> ();
+        private GameObject playerThumbCellPrefab;
+        private Dictionary<string, PlayerThumbCell> playerThumbs = new Dictionary<string, PlayerThumbCell> ();
+
+        public bool showScore = false;
 
         void Start () {
             GameController.playersStatsDelegate += UpdateCells;
         }
 
         void UpdateCells (PlayersStats allStats) {
-            IList<string> players = new List<string> (playersScores.Keys);
+            IList<string> players = new List<string> (playerThumbs.Keys);
 
             foreach (PlayerStats playerStats in allStats.Stats) {
                 string name = playerStats.Name;
                 players.Remove (name);
 
-                if (playersScores.ContainsKey (name)) {
+                if (playerThumbs.ContainsKey (name)) {
                     UpdatePlayerCell (name, playerStats.Score);
                 } else {
                     SetUpNewPlayerCell (name, playerStats.Color);
@@ -36,24 +38,25 @@ namespace MultiPacMan.UI {
         }
 
         void UpdatePlayerCell (string name, int score) {
-            playersScores[name].Score = score;
+            playerThumbs[name].Score = score;
         }
 
         void SetUpNewPlayerCell (string name, Color color) {
-            GameObject playerScore = Instantiate (playerScoreCellPrefab, this.transform) as GameObject;
-            PlayerScoreCell cell = playerScore.GetComponent<PlayerScoreCell> ();
+            GameObject playerScore = Instantiate (playerThumbCellPrefab, this.transform) as GameObject;
+            PlayerThumbCell cell = playerScore.GetComponent<PlayerThumbCell> ();
 
             cell.Name = name;
             cell.Score = 0;
             cell.Color = color;
+            cell.showScore = showScore;
 
-            playersScores.Add (name, cell);
+            playerThumbs.Add (name, cell);
         }
 
         void DeletePlayerCell (string name) {
-            PlayerScoreCell cell = playersScores[name];
+            PlayerThumbCell cell = playerThumbs[name];
 
-            playersScores.Remove (name);
+            playerThumbs.Remove (name);
             GameObject.DestroyImmediate (cell.gameObject);
         }
     }
