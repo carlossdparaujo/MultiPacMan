@@ -27,6 +27,9 @@ namespace MultiPacMan.Game {
         public delegate void GetPlayersStats (PlayersStats stats);
         public static GetPlayersStats playersStatsDelegate;
 
+        public delegate void GetPlayerCount (int playerCount, int maxPlayerCount);
+        public static GetPlayerCount playerCountDelegate;
+
         public int playersToStart = 2;
 
         void Start () {
@@ -93,9 +96,11 @@ namespace MultiPacMan.Game {
 
                 gameInitiliazed = true;
             }
+                
+            playerCountDelegate(GetPlayers().Count, playersToStart);  
 
-            try {
-                playersStatsDelegate (playersStats ());
+            try {              
+                playersStatsDelegate(playersStats ());
             } catch (InvalidOperationException) {
                 // Waiting for my player to connect
             }
