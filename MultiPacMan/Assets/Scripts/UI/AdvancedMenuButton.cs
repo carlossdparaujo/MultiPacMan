@@ -1,16 +1,15 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MultiPacMan.UI
-{
-	public class AdvancedMenuButton : MonoBehaviour {
+namespace MultiPacMan.UI {
+    public class AdvancedMenuButton : MonoBehaviour {
 
-		[SerializeField]
-		private GameObject menu;
+        [SerializeField]
+        private GameObject menu;
 
-		public void ToggleMenu() {
-			menu.SetActive(!menu.activeSelf);
-		}
-	}
+        public void ToggleMenu () {
+            menu.SetActive (!menu.activeSelf);
+        }
+    }
 }

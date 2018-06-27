@@ -1,23 +1,22 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
-using MultiPacMan.Photon.Player;
 using MultiPacMan.Game;
+using MultiPacMan.Photon.Player;
+using UnityEngine;
+using UnityEngine.UI;
 
-namespace MultiPacMan.UI
-{
-	[RequireComponent(typeof(Slider))]
-	public class PlayerTurboMeter : MonoBehaviour {
-		
-		private Slider slider;
+namespace MultiPacMan.UI {
+    [RequireComponent (typeof (Slider))]
+    public class PlayerTurboMeter : MonoBehaviour {
 
-		void Start() {
-			slider = this.gameObject.GetComponent<Slider>();
-			GameController.playersStatsDelegate += UpdateTurboPercenatage;
-		}
+        private Slider slider;
 
-		void UpdateTurboPercenatage(PlayersStats stats) {
-			slider.normalizedValue = stats.MyPlayerStats.TurboFuelPercent;
-		}
-	}
+        void Start () {
+            slider = this.gameObject.GetComponent<Slider> ();
+            GameController.playersStatsDelegate += UpdateTurboPercenatage;
+        }
+
+        void UpdateTurboPercenatage (PlayersStats stats) {
+            slider.normalizedValue = stats.MyPlayerStats.TurboFuelPercent;
+        }
+    }
 }

@@ -1,26 +1,25 @@
-﻿using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
-namespace MultiPacMan.Player.Turbo
-{
-	public class NetworkedTurboController : TurboController {
-		public delegate Vector2 GetVelocity();
-		public GetVelocity getVelocityDelegate;
+namespace MultiPacMan.Player.Turbo {
+    public class NetworkedTurboController : TurboController {
+        public delegate Vector2 GetVelocity ();
+        public GetVelocity getVelocityDelegate;
 
-		public override float GetTurboFuelPercentage() {
-			return 0.0f;
-		}
+        public override float GetTurboFuelPercentage () {
+            return 0.0f;
+        }
 
-		public override bool IsTurboOn() {
-			return getVelocityDelegate().magnitude / Time.fixedDeltaTime > 5.0f;
-		}
+        public override bool IsTurboOn () {
+            return getVelocityDelegate ().magnitude / Time.fixedDeltaTime > 5.0f;
+        }
 
-		void Update() {
-			if (IsTurboOn ()) {
-				trail.enabled = true;
-			} else {
-				trail.enabled = false;
-			}
-		}
-	}
+        void Update () {
+            if (IsTurboOn ()) {
+                trail.enabled = true;
+            } else {
+                trail.enabled = false;
+            }
+        }
+    }
 }

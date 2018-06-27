@@ -1,54 +1,49 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using MultiPacMan.Game;
+using MultiPacMan.Player;
+using UnityEngine;
+using UnityEngine.UI;
 
-namespace MultiPacMan.UI
-{
-	public class EndGameScreen : MonoBehaviour {
+namespace MultiPacMan.UI {
+    public class EndGameScreen : MonoBehaviour {
 
-		[SerializeField]
-		private Text winnerName;
-		[SerializeField]
-		private Text scores;
+        [SerializeField]
+        private Text winnerName;
+        [SerializeField]
+        private Text scores;
 
-		void Awake() {
-			GameController.gameStartedDelegate += HandleOnGameStarted;
-			GameController.gameEndedDelegate += HandleOnGameEnded;
-		}
+        void Awake () {
+            GameController.gameEndedDelegate += HandleOnGameEnded;
+            this.gameObject.SetActive (false);
+        }
 
-		void OnDestroy() {
-			GameController.gameStartedDelegate -= HandleOnGameStarted;
-			GameController.gameEndedDelegate -= HandleOnGameEnded;
-		}
+        void OnDestroy () {
+            GameController.gameEndedDelegate -= HandleOnGameEnded;
+        }
 
-		void HandleOnGameStarted() {
-			this.gameObject.SetActive(false);
-		}
+        void HandleOnGameEnded (PlayersStats playersStats) {
+            int maxScore = 0;
+            string winner = "";
+            scores.text = "";
 
-		void HandleOnGameEnded(List<GameController.PlayerData> players) {
-			int maxScore = 0;
-			string winner = "";
-			scores.text = "";
+            foreach (PlayerStats stats in playersStats.Stats) {
+                if (stats.Score > maxScore) {
+                    maxScore = stats.Score;
+                    winner = stats.Name;
+                } else if (stats.Score == maxScore) {
+                    if (winner.CompareTo (stats.Name) > 0) {
+                        maxScore = stats.Score;
+                        winner = stats.Name;
+                    }
+                }
 
-			foreach (GameController.PlayerData data in players) {
-				if (data.score > maxScore) {
-					maxScore = data.score;
-					winner = data.name;
-				} else if (data.score == maxScore) {
-					if (winner.CompareTo(data.name) > 0) {
-						maxScore = data.score;
-						winner = data.name;
-					}
-				}
-					
-				scores.text += data.name + ": " + data.score + "\n";
-			}
+                scores.text += stats.Name + ": " + stats.Score + "\n";
+            }
 
-			winnerName.text = winner;
+            winnerName.text = winner;
 
-			this.gameObject.SetActive(true);
-		}
-	}
+            this.gameObject.SetActive (true);
+        }
+    }
 }

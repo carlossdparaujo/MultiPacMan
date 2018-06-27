@@ -1,253 +1,148 @@
-﻿using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MultiPacMan.Player;
-using MultiPacMan.Photon.Player;
+using MultiPacMan.Game.Services;
 using MultiPacMan.Pellet;
+using MultiPacMan.Photon.Game.Services;
+using MultiPacMan.Photon.Player;
+using MultiPacMan.Player;
 using Photon;
+using UnityEngine;
 
-namespace MultiPacMan.Game
-{
-	[RequireComponent(typeof(LevelCreator))]
-	public class GameController : PunBehaviour {
+namespace MultiPacMan.Game {
+    public class GameController : PunBehaviour {
 
-		public static int EAT_PELLET_EVENT_CODE = 1;
-		public static int REMOVE_PELLET_EVENT_CODE = 2;
-		public static int END_GAME_EVENT_CODE = 3;
+        private bool gameInitiliazed = false;
+        private bool isPlaying = false;
 
-		public static bool VALIDATION_ON = true;
+        public delegate void OnRoomEntered ();
+        public static OnRoomEntered roomEnteredDelegate;
 
-		[SerializeField]
-		private bool simulateLag = false;
-		[SerializeField]
-		private int simulatedLagInMs = 100;
-		[SerializeField]
-		private GameObject pelletPrefab;
+        public delegate void OnGameStarted ();
+        public static OnGameStarted gameStartedDelegate;
 
-		private LevelCreator levelCreator;
-		private static Dictionary<string, PelletBehaviour> pellets = new Dictionary<string, PelletBehaviour>();
-		private static List<int> pelletsNotEaten = new List<int>();
-		private bool gameInitiliazed = false;
-		private bool isPlaying = false;
+        public delegate void OnGameEnded (PlayersStats stats);
+        public static OnGameEnded gameEndedDelegate;
 
-		public struct PlayerData {
-			public readonly string name;
-			public readonly int score;
+        public delegate void GetPlayersStats (PlayersStats stats);
+        public static GetPlayersStats playersStatsDelegate;
 
-			public PlayerData(string name, int score) {
-				this.name = name;
-				this.score = score;
-			}
-		}
+        public delegate void GetPlayerCount (int playerCount, int maxPlayerCount);
+        public static GetPlayerCount playerCountDelegate;
 
-		public delegate void OnGameStarted();
-		public static OnGameStarted gameStartedDelegate;
+        public int playersToStart = 2;
 
-		public delegate void OnGameEnded(List<PlayerData> players);
-		public static OnGameEnded gameEndedDelegate;
+        void Start () {
+            PhotonNetwork.ConnectUsingSettings ("0.0.0");
+            PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 
-		public delegate void GetPlayersStats(PlayersStats stats);
-		public static GetPlayersStats playersStatsDelegate;
+            LevelController.gameEndedDelegate += NotifyEndGame;
 
-		public static List<IPlayer> GetPlayers() {
-			List<IPlayer> playerList = new List<IPlayer>();
+            isPlaying = true;
+        }
 
-			foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-				playerList.Add((IPlayer) player.TagObject);
-			}
+        public override void OnJoinedLobby () {
+            if (isPlaying == false) {
+                return;
+            }
 
-			return playerList;
-		}
+            RoomOptions roomOptions = new RoomOptions ();
+            roomOptions.MaxPlayers = 4;
 
-		void Start() {
-			if (gameStartedDelegate != null) {
-				gameStartedDelegate();
-			}
+            PhotonNetwork.JoinOrCreateRoom ("Game", roomOptions, null);
+        }
 
-			levelCreator = this.gameObject.GetComponent<LevelCreator>();
-			levelCreator.playerDelegate += CreatePlayer;
-			levelCreator.pelletDelegate += CreatePellet;
+        public override void OnJoinedRoom () {
+            base.OnJoinedRoom ();
 
-			PhotonNetwork.ConnectUsingSettings("0.0.0");
-			PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
-			isPlaying = true;
-		}
+            if (isPlaying == false) {
+                PhotonNetwork.LeaveRoom ();
+                return;
+            }
 
-		public void CreatePlayer(Vector2 position) {
-			Color playerColor = randomBrightColor();
-			string playerName = "Player " + GameController.GetPlayers ().Count;
-			object[] data = new object[4] { playerColor.r, playerColor.g, playerColor.b, playerName };
-			PhotonNetwork.Instantiate("Player", new Vector3(position.x, position.y, -1.0f), Quaternion.identity, 0, data);
-		}
+            if (roomEnteredDelegate != null) {
+                roomEnteredDelegate();
+            }
+        }
 
-		private Color randomBrightColor() {
-			return UnityEngine.Random.ColorHSV (0.0f, 1.0f, 0.5f, 1.0f, 0.6f, 1.0f);
-		}
+        public void PhotonNetwork_OnEventCall (byte eventCode, object content, int senderId) {
+            if ((int) eventCode == (int) Events.END_GAME_EVENT_CODE) {
+                if (gameEndedDelegate != null) {
+                    gameEndedDelegate (playersStats ());
+                }
 
-		public void CreatePellet(Vector2 position, int score, Point positionOnMap) {
-			Vector3 pos = new Vector3(position.x, position.y, 0.0f);
+                isPlaying = false;
+                PhotonNetwork.LeaveRoom ();
+            }
+        }
 
-			GameObject pelletGameObject = GameObject.Instantiate(pelletPrefab, pos, Quaternion.identity) as GameObject;
-			PelletBehaviour pellet = pelletGameObject.GetComponent<PelletBehaviour>();
-			pellet.Setup(score, positionOnMap.x, positionOnMap.y);
+        public void NotifyEndGame () {
+            if (PhotonNetwork.isMasterClient && gameInitiliazed && isPlaying) {
+                RaiseEventOptions options = new RaiseEventOptions ();
+                options.CachingOption = EventCaching.AddToRoomCacheGlobal;
+                options.Receivers = ReceiverGroup.All;
 
-			int id = positionOnMap.GetHashCode();
-			pellets.Add(id.ToString(), pellet);
-			pelletsNotEaten.Add(id);
+                PhotonNetwork.RaiseEvent ((byte) Events.END_GAME_EVENT_CODE,
+                    null, true, options
+                );
+            }
+        }
 
-			gameInitiliazed = true;
-		}
+        void Update () {
+            if (!gameInitiliazed && PhotonNetwork.playerList.Length >= playersToStart) {
+                if (gameStartedDelegate != null) {
+                    gameStartedDelegate ();
+                }
 
-		public override void OnJoinedLobby() {
-			if (isPlaying == false) {
-				return;
-			}
+                gameInitiliazed = true;
+            }
+                
+            playerCountDelegate(GetPlayers().Count, playersToStart);  
 
-			RoomOptions roomOptions = new RoomOptions();
-			roomOptions.MaxPlayers = 4;
+            try {              
+                playersStatsDelegate(playersStats ());
+            } catch (InvalidOperationException) {
+                // Waiting for my player to connect
+            }
+        }
 
-			PhotonNetwork.JoinOrCreateRoom("Game", roomOptions, null);
-		}
+        private PlayersStats playersStats () {
+            IList<IPlayer> players = GetPlayers ();
+            IList<PlayerStats> allStats = new List<PlayerStats> ();
 
-		public override void OnJoinedRoom() {
-			base.OnJoinedRoom();
+            foreach (IPlayer player in players) {
+                if (player == null) {
+                    continue;
+                }
 
-			if (isPlaying == false) {
-				PhotonNetwork.LeaveRoom();
-				return;
-			}
+                PlayerStats playerStats = player.GetStats ();
+                allStats.Add (playerStats);
+            }
 
-			levelCreator.Create();
-		}
+            IPlayer myPlayer = (IPlayer) PhotonNetwork.player.TagObject;
+            if (myPlayer == null) {
+                throw new InvalidOperationException ("My player still not connected.");
+            }
 
-		public void PhotonNetwork_OnEventCall(byte eventCode, object content, int senderId) {
-			if ((int) eventCode == EAT_PELLET_EVENT_CODE) {
-				if (!PhotonNetwork.isMasterClient) {
-					return;
-				}
+            return new PlayersStats (allStats, myPlayer.PlayerName);
+        }
 
-				object[] data = (object[]) content;
-				int pelletId = (int) data[0];
+        private List<IPlayer> GetPlayers () {
+            List<IPlayer> playerList = new List<IPlayer> ();
 
-				if (VALIDATION_ON) {
-					if (!pelletsNotEaten.Remove(pelletId)) {
-						return;
-					}
-				}
+            foreach (PhotonPlayer player in PhotonNetwork.playerList) {
+                playerList.Add ((IPlayer) player.TagObject);
+            }
 
-				RaiseEventOptions options = new RaiseEventOptions();
-				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-				options.Receivers = ReceiverGroup.All;
+            return playerList;
+        }
 
-				PhotonNetwork.RaiseEvent ((byte) REMOVE_PELLET_EVENT_CODE,
-					new object[2] { pelletId, senderId },
-					true, options
-				);
-			} else if ((int) eventCode == REMOVE_PELLET_EVENT_CODE) {
-				object[] data = (object[]) content;
+        public override void OnLeftRoom () {
+            PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
+        }
 
-				int pelletId = (int) data[0];
-				int playerId = (int) data[1];
-
-				PelletBehaviour pellet = GetPellet(pelletId);
-				if (pellet != null) {
-					pellet.DestroyAfterAnimation();
-				}
-
-				IPlayer player = GetPlayer(playerId);
-				if (player != null) {
-					player.AddToScore(pellet.Score);
-				}
-
-				pelletsNotEaten.Remove(pelletId);
-			} else if ((int) eventCode == END_GAME_EVENT_CODE) {
-				if (gameEndedDelegate != null) {
-					gameEndedDelegate(getPlayersData());
-				}
-
-				isPlaying = false;
-				PhotonNetwork.LeaveRoom();
-			}
-		}
-
-		private static PelletBehaviour GetPellet(int pelletId) {
-			string key = pelletId.ToString();
-
-			if (pellets.ContainsKey(key)) {
-				PelletBehaviour pellet = pellets[key];
-				return pellet;
-			}
-
-			return null;
-		}
-
-		private static IPlayer GetPlayer(int id) {
-			foreach (PhotonPlayer player in PhotonNetwork.playerList) {
-				if (player.ID == id) {
-					return (IPlayer) player.TagObject;
-				}
-			}
-
-			return null;
-		}
-
-		void Update() {
-			PhotonNetwork.networkingPeer.IsSimulationEnabled = simulateLag;
-			PhotonNetwork.networkingPeer.NetworkSimulationSettings.IncomingLag = simulatedLagInMs;
-			PhotonNetwork.networkingPeer.NetworkSimulationSettings.OutgoingLag = simulatedLagInMs;
-
-			if (PhotonNetwork.isMasterClient && pelletsNotEaten.Count == 0 && gameInitiliazed && isPlaying) {
-				RaiseEventOptions options = new RaiseEventOptions();
-				options.CachingOption = EventCaching.AddToRoomCacheGlobal;
-				options.Receivers = ReceiverGroup.All;
-
-				PhotonNetwork.RaiseEvent ((byte) END_GAME_EVENT_CODE,
-					null, true, options
-				);
-			}
-
-			try {
-				playersStatsDelegate(playersStats());
-			} catch (InvalidOperationException e) {
-				Debug.Log("Waiting for my player to connect.");
-			}
-		}
-
-		private PlayersStats playersStats() {
-			IList<IPlayer> players = GetPlayers();
-			IList<PlayerStats> allStats = new List<PlayerStats>();
-
-			foreach (IPlayer player in players) {
-				if (player == null) {
-					continue;
-				}
-
-				PlayerStats playerStats = new PlayerStats(player.PlayerName, player.Color, player.Score, player.GetTurboFuelPercentage());
-				allStats.Add(playerStats);
-			}
-
-			IPlayer myPlayer = (IPlayer) PhotonNetwork.player.TagObject;
-			if (myPlayer == null) {
-				throw new InvalidOperationException("My player still not connected.");
-			}
-
-			return new PlayersStats(allStats, myPlayer.PlayerName);
-		}
-
-		private List<PlayerData> getPlayersData() {
-			List<PlayerData> data = new List<PlayerData>();
-
-			foreach (IPlayer player in GetPlayers()) {
-				data.Add(new PlayerData(player.PlayerName, player.Score));
-			}
-
-			return data;
-		}
-
-		public override void OnLeftRoom() {
-			pellets.Clear();
-			PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
-		}
-	}
+        private IPlayer GetMyPlayer () {
+            return (IPlayer) PhotonNetwork.player.TagObject;
+        }
+    }
 }

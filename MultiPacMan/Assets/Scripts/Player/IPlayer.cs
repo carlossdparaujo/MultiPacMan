@@ -1,68 +1,81 @@
-﻿using System;
-using UnityEngine;
+using System;
 using MultiPacMan.Player.Turbo;
+using UnityEngine;
 
-namespace MultiPacMan.Player
-{
-	[RequireComponent(typeof(PlayerSpriteDirectionChanger))]
-	public abstract class IPlayer : MonoBehaviour, IComparable<IPlayer> {
+namespace MultiPacMan.Player {
+    [RequireComponent (typeof (PlayerSpriteDirectionChanger))]
+    public abstract class IPlayer : MonoBehaviour, IComparable<IPlayer> {
 
-		public delegate void PlayerCreated(string playerName, Color playerColor);
-		public static PlayerCreated playerCreatedDelegate;
+        private int score = 0;
+        public int Score {
+            get {
+                return score;
+            }
+            set {
+                score = value;
+            }
+        }
 
-		private int score = 0;
-		public int Score {
-			get {
-				return score;
-			}
-		}
+        protected string playerName;
+        public string PlayerName {
+            get {
+                return playerName;
+            }
+        }
 
-		protected string playerName;
-		public string PlayerName {
-			get {
-				return playerName;
-			}
-		}
+        protected Color color;
+        public Color Color {
+            get {
+                return color;
+            }
+        }
 
-		protected Color color;
-		public Color Color {
-			get {
-				return color;
-			}
-		}
+        public abstract TurboController TurboController {
+            get;
+        }
 
-		public abstract TurboController TurboController {
-			get;
-		}
+        public PlayerSpriteDirectionChanger SpriteDirectionChanger {
+            get {
+                return this.GetComponent<PlayerSpriteDirectionChanger> ();
+            }
+        }
 
-		public PlayerSpriteDirectionChanger SpriteDirectionChanger {
-			get {
-				return this.GetComponent<PlayerSpriteDirectionChanger>();
-			}
-		}
+        public void Setup (PlayerStats stats) {
+            this.playerName = stats.Name;
+            this.color = stats.Color;
+            this.score = stats.Score;
 
-		public void UpdateScore(int value) {
-			score = value;
-		}
+            AddComponents ();
+        }
 
-		public void AddToScore(int value) {
-			score += value;
-		}
+        protected abstract void AddComponents ();
 
-		public float GetTurboFuelPercentage() {
-			return TurboController.GetTurboFuelPercentage();
-		}
+        public void UpdateScore (int value) {
+            score = value;
+        }
 
-		protected T Add<T>() where T : MonoBehaviour {
-			return this.gameObject.AddComponent<T>();
-		}
+        public void AddToScore (int value) {
+            score += value;
+        }
 
-		public int CompareTo(IPlayer player) {
-			if (player.PlayerName == null) {
-				return 1;
-			}
+        public float GetTurboFuelPercentage () {
+            return TurboController.GetTurboFuelPercentage ();
+        }
 
-			return player.PlayerName.CompareTo(this.name);
-		}
-	}
+        public PlayerStats GetStats () {
+            return new PlayerStats (PlayerName, Color, Score, GetTurboFuelPercentage ());
+        }
+
+        protected T Add<T> () where T : MonoBehaviour {
+            return this.gameObject.AddComponent<T> ();
+        }
+
+        public int CompareTo (IPlayer player) {
+            if (player.PlayerName == null) {
+                return 1;
+            }
+
+            return player.PlayerName.CompareTo (this.name);
+        }
+    }
 }

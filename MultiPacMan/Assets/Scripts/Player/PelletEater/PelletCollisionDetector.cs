@@ -1,27 +1,26 @@
-﻿using UnityEngine;
 using System.Collections;
 using MultiPacMan.Pellet;
+using UnityEngine;
 
-namespace MultiPacMan.Player.PelletEater
-{
-	public class PelletCollisionDetector : MonoBehaviour {
+namespace MultiPacMan.Player.PelletEater {
+    public class PelletCollisionDetector : MonoBehaviour {
 
-		public delegate void CollidingWithPellet(PelletBehaviour pellet);
-		public CollidingWithPellet collisionDelegate;
+        public delegate void CollidingWithPellet (PelletBehaviour pellet);
+        public CollidingWithPellet collisionDelegate;
 
-		void OnTriggerEnter2D(Collider2D other) {
-			DetectCollision(other);
-		}
+        void OnTriggerEnter2D (Collider2D other) {
+            DetectCollision (other);
+        }
 
-		private void DetectCollision(Collider2D other) {
-			if (IsCollidingWithPellet(other)) {
-				PelletBehaviour pellet = other.gameObject.GetComponent<PelletBehaviour>();
-				collisionDelegate(pellet);
-			}
-		}
+        private void DetectCollision (Collider2D other) {
+            if (IsCollidingWithPellet (other)) {
+                PelletBehaviour pellet = other.gameObject.GetComponent<PelletBehaviour> ();
+                collisionDelegate (pellet);
+            }
+        }
 
-		private bool IsCollidingWithPellet(Collider2D other) {
-			return other.tag == "Pellet" && other.gameObject.GetComponent<PelletBehaviour>() != null;
-		}
-	}
+        private bool IsCollidingWithPellet (Collider2D other) {
+            return other.tag == "Pellet" && other.gameObject.GetComponent<PelletBehaviour> () != null;
+        }
+    }
 }
