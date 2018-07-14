@@ -35,9 +35,9 @@ namespace MultiPacMan.Game {
             PhotonNetwork.RaiseEvent ((byte) Events.NEW_PLAYER_ENTERED, null, true, options);
         }
 
-        public void CreatePlayer() {
+        public void CreatePlayer () {
             if (playerCreationRequest != null) {
-                playerCreator.AllowPlayerCreation(playerCreationRequest);
+                playerCreator.AllowPlayerCreation (playerCreationRequest);
             }
 
             gameStarted = true;
@@ -56,7 +56,7 @@ namespace MultiPacMan.Game {
                 SendMyUpdatedScore ();
 
                 if (PhotonNetwork.isMasterClient) {
-                    PlayerCreationRequest request = playerCreator.GeneratePlayer(senderId, levelCreator.GetPlayersPositions());
+                    PlayerCreationRequest request = playerCreator.GeneratePlayer (senderId, levelCreator.GetPlayersPositions ());
 
                     RaiseEventOptions options = new RaiseEventOptions ();
                     options.CachingOption = EventCaching.AddToRoomCacheGlobal;
@@ -70,14 +70,14 @@ namespace MultiPacMan.Game {
             } else if (ReceivedSetPlayerScoreEvent ((int) eventCode)) {
                 PlayerScoreRequest request = new PlayerScoreRequest ((object[]) content);
                 UpdatePlayerScore (request);
-            } else if (ReceivedAllowPlayerCreationEvent((int) eventCode)) {
-                PlayerCreationRequest request = new PlayerCreationRequest((object[]) content);
+            } else if (ReceivedAllowPlayerCreationEvent ((int) eventCode)) {
+                PlayerCreationRequest request = new PlayerCreationRequest ((object[]) content);
 
                 if (PhotonNetwork.player.ID == request.OwnerId) {
                     this.playerCreationRequest = request;
-                    
+
                     if (gameStarted) {
-                        CreatePlayer();
+                        CreatePlayer ();
                     }
                 }
             }

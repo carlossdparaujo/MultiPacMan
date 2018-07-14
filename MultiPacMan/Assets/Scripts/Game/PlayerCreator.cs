@@ -34,7 +34,7 @@ namespace MultiPacMan.Game {
             }
         }
 
-        public PlayerCreationRequest GeneratePlayer(int newPlayerId, IList<Vector2> playersPositions) {
+        public PlayerCreationRequest GeneratePlayer (int newPlayerId, IList<Vector2> playersPositions) {
             string name = SelectRandomScheme (remainingSchemes);
             Color color = remainingSchemes[name];
             remainingSchemes.Remove (name);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MultiPacMan.Game;
 using MultiPacMan.Player;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace MultiPacMan.UI {
         [SerializeField]
         private Text winnerName;
         [SerializeField]
-        private Text scores;
+        private ScoreTable scores;
 
         void Awake () {
             GameController.gameEndedDelegate += HandleOnGameEnded;
@@ -23,27 +24,24 @@ namespace MultiPacMan.UI {
         }
 
         void HandleOnGameEnded (PlayersStats playersStats) {
-            int maxScore = 0;
-            string winner = "";
-            scores.text = "";
+            List<PlayerStats> allStats = OrderByScore (playersStats);
 
-            foreach (PlayerStats stats in playersStats.Stats) {
-                if (stats.Score > maxScore) {
-                    maxScore = stats.Score;
-                    winner = stats.Name;
-                } else if (stats.Score == maxScore) {
-                    if (winner.CompareTo (stats.Name) > 0) {
-                        maxScore = stats.Score;
-                        winner = stats.Name;
-                    }
-                }
+            SetWinnerText (allStats[0]);
 
-                scores.text += stats.Name + ": " + stats.Score + "\n";
+            foreach (PlayerStats stats in allStats) {
+                scores.AddPlayer (stats);
             }
 
-            winnerName.text = winner;
-
             this.gameObject.SetActive (true);
+        }
+
+        private List<PlayerStats> OrderByScore (PlayersStats playersStats) {
+            return playersStats.Stats.OrderBy (stats => stats.Score).ToList ();
+        }
+
+        private void SetWinnerText (PlayerStats winnerStats) {
+            winnerName.text = winnerStats.Name;
+            winnerName.color = winnerStats.Color;
         }
     }
 }

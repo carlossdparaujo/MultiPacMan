@@ -61,7 +61,7 @@ namespace MultiPacMan.Game {
             }
 
             if (roomEnteredDelegate != null) {
-                roomEnteredDelegate();
+                roomEnteredDelegate ();
             }
         }
 
@@ -96,11 +96,11 @@ namespace MultiPacMan.Game {
 
                 gameInitiliazed = true;
             }
-                
-            playerCountDelegate(GetPlayers().Count, playersToStart);  
 
-            try {              
-                playersStatsDelegate(playersStats ());
+            playerCountDelegate (GetPlayers ().Count, playersToStart);
+
+            try {
+                playersStatsDelegate (playersStats ());
             } catch (InvalidOperationException) {
                 // Waiting for my player to connect
             }
