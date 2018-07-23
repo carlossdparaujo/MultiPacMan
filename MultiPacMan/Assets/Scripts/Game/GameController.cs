@@ -12,9 +12,6 @@ using UnityEngine;
 namespace MultiPacMan.Game {
     public class GameController : PunBehaviour {
 
-        private bool gameInitiliazed = false;
-        private bool isPlaying = false;
-
         public delegate void OnRoomEntered ();
         public static OnRoomEntered roomEnteredDelegate;
 
@@ -30,18 +27,32 @@ namespace MultiPacMan.Game {
         public delegate void GetPlayerCount (int playerCount, int maxPlayerCount);
         public static GetPlayerCount playerCountDelegate;
 
-        public int playersToStart = 2;
+        [SerializeField]
+        private int playersToStart = 2;
+        private bool gameInitiliazed = false;
+        private bool isPlaying = false;
 
-        void Start () {
-            PhotonNetwork.ConnectUsingSettings ("0.0.0");
+        void Start() {
             PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
 
             LevelController.gameEndedDelegate += NotifyEndGame;
 
             isPlaying = true;
+
+            if (PhotonNetwork.connected) {
+                OnJoinedLobby();
+            } else {
+                PhotonNetwork.ConnectUsingSettings ("0.0.0");
+            }
+        }
+
+        void OnDestroy () {
+            PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
         }
 
         public override void OnJoinedLobby () {
+            base.OnJoinedLobby ();
+
             if (isPlaying == false) {
                 return;
             }

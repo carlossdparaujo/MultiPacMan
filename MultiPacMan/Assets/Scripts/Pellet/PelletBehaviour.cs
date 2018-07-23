@@ -38,13 +38,15 @@ namespace MultiPacMan.Pellet {
             this.score = score;
             this.point = new Point (x, y);
 
-            animator.GetBehaviour<PelletIdleAnimation> ().enteredState += () => {
-                if (shouldDestroy) {
+            animator.GetBehaviour<PelletIdleAnimation> ().enteredState += EndedAnimation;
+        }
+
+        public void EndedAnimation () {
+            if (shouldDestroy) {
                     Destroy (this.gameObject);
                 } else {
                     eaten = false;
                 }
-            };
         }
 
         public void AnimatePelletEaten () {

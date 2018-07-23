@@ -18,6 +18,10 @@ namespace MultiPacMan.UI {
             GameController.playersStatsDelegate += UpdateCells;
         }
 
+        void OnDestroy () {
+            GameController.playersStatsDelegate -= UpdateCells;
+        }
+
         void UpdateCells (PlayersStats allStats) {
             IList<string> players = new List<string> (playerThumbs.Keys);
 

@@ -14,20 +14,16 @@ namespace MultiPacMan.Game {
         private PlayerCreator playerCreator;
         private LevelCreator levelCreator;
 
-        private PlayerCreationRequest playerCreationRequest;
-        private bool gameStarted = false;
-
         void Start () {
             PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
             GameController.roomEnteredDelegate += RequestPlayerCreation;
-            GameController.gameStartedDelegate += CreatePlayer;
+            GameController.gameEndedDelegate += DestroyPlayers;
 
             PhotonPlayerCreationService service = new PhotonPlayerCreationService ();
 
             playerCreator = new PlayerCreator (service);
             levelCreator = this.gameObject.GetComponent<LevelCreator> ();
 
-            // Generate name and color
             RaiseEventOptions options = new RaiseEventOptions ();
             options.CachingOption = EventCaching.AddToRoomCacheGlobal;
             options.Receivers = ReceiverGroup.All;
@@ -35,12 +31,22 @@ namespace MultiPacMan.Game {
             PhotonNetwork.RaiseEvent ((byte) Events.NEW_PLAYER_ENTERED, null, true, options);
         }
 
-        public void CreatePlayer () {
-            if (playerCreationRequest != null) {
-                playerCreator.AllowPlayerCreation (playerCreationRequest);
-            }
+        void OnDestroy () {
+            PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
+            GameController.roomEnteredDelegate -= RequestPlayerCreation;
+            GameController.gameEndedDelegate -= DestroyPlayers;
+        }
 
-            gameStarted = true;
+        public void CreatePlayer (PlayerCreationRequest request) {
+            if (request != null) {
+                playerCreator.AllowPlayerCreation (request);
+            }
+        }
+
+        public void DestroyPlayers (PlayersStats playersStats) {
+            foreach (PlayerStats stats in playersStats.Stats) {
+                Destroy(GetPlayer(stats.Name).gameObject);
+            } 
         }
 
         public void RequestPlayerCreation () {
@@ -74,11 +80,7 @@ namespace MultiPacMan.Game {
                 PlayerCreationRequest request = new PlayerCreationRequest ((object[]) content);
 
                 if (PhotonNetwork.player.ID == request.OwnerId) {
-                    this.playerCreationRequest = request;
-
-                    if (gameStarted) {
-                        CreatePlayer ();
-                    }
+                    CreatePlayer (request);
                 }
             }
         }

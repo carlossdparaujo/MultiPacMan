@@ -10,6 +10,10 @@ namespace MultiPacMan.UI {
             GameController.gameStartedDelegate += HandleOnGameStarted;
         }
 
+        void OnDestroy () {
+            GameController.gameStartedDelegate -= HandleOnGameStarted;
+        }
+
         void HandleOnGameStarted () {
             this.gameObject.SetActive (false);
         }

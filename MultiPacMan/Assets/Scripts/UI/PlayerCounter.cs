@@ -14,6 +14,10 @@ namespace MultiPacMan.UI {
             GameController.playerCountDelegate += UpdatePlayerCount;
         }
 
+        void OnDestroy () {
+            GameController.playerCountDelegate -= UpdatePlayerCount;
+        }
+
         void UpdatePlayerCount (int playerCount, int maxPlayerCount) {
             countText.text = playerCount + "/" + maxPlayerCount;
         }

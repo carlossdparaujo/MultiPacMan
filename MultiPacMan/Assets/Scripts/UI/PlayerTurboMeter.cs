@@ -15,6 +15,10 @@ namespace MultiPacMan.UI {
             GameController.playersStatsDelegate += UpdateTurboPercenatage;
         }
 
+        void OnDestroy () {
+            GameController.playersStatsDelegate -= UpdateTurboPercenatage;
+        }
+
         void UpdateTurboPercenatage (PlayersStats stats) {
             slider.normalizedValue = stats.MyPlayerStats.TurboFuelPercent;
         }

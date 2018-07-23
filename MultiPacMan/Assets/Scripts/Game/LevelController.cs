@@ -23,15 +23,28 @@ namespace MultiPacMan.Game {
             levelCreator.pelletCreated += RegisterPellet;
 
             GameController.gameStartedDelegate += levelCreator.Create;
-            GameController.gameEndedDelegate += (PlayersStats stats) => pellets.Clear ();
+            GameController.gameEndedDelegate += ClearPellets;
 
             PhotonNetwork.OnEventCall += PhotonNetwork_OnEventCall;
+        }
+
+        void OnDestroy () {
+            levelCreator.pelletCreated -= RegisterPellet;
+
+            GameController.gameStartedDelegate -= levelCreator.Create;
+            GameController.gameEndedDelegate -= ClearPellets;
+
+            PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
         }
 
         public void RegisterPellet (PelletBehaviour pellet, Point positionOnMap) {
             int id = positionOnMap.GetHashCode ();
             pellets.Add (id.ToString (), pellet);
             pelletsNotEaten.Add (id);
+        }
+
+        public void ClearPellets (PlayersStats stats) {
+            pellets.Clear ();
         }
 
         public void PhotonNetwork_OnEventCall (byte eventCode, object content, int senderId) {
