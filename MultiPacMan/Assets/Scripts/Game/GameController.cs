@@ -111,7 +111,9 @@ namespace MultiPacMan.Game {
             playerCountDelegate (GetPlayers ().Count, playersToStart);
 
             try {
-                playersStatsDelegate (playersStats ());
+                if (playersStatsDelegate != null) {
+                    playersStatsDelegate (playersStats ());
+                }
             } catch (InvalidOperationException) {
                 // Waiting for my player to connect
             }

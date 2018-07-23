@@ -36,7 +36,7 @@ namespace MultiPacMan.UI {
         }
 
         private List<PlayerStats> OrderByScore (PlayersStats playersStats) {
-            return playersStats.Stats.OrderBy (stats => stats.Score).ToList ();
+            return playersStats.Stats.OrderByDescending (stats => stats.Score).ToList ();
         }
 
         private void SetWinnerText (PlayerStats winnerStats) {
