@@ -37,17 +37,16 @@ namespace MultiPacMan.Player.Movement {
             this.timeWaited = t;
             this.t = 0.0f;
             this.oldPosition = rb.position;
+            this.newPosition = position;
             this.currentVelocity = velocity;
 
             switch (serializationOption) {
                 case NetworkingOptions.Interpolation:
-                    newPosition = position;
                     break;
                 case NetworkingOptions.InterpolationAndExtrapolation:
-                    newPosition = position + timeWaited * velocity;
+                    newPosition = newPosition + timeWaited * velocity;
                     break;
                 default:
-                    this.newPosition = this.oldPosition;
                     Move (position);
                     break;
             }
