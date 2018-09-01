@@ -13,7 +13,7 @@ namespace MultiPacMan.Player.Input {
 			float yMovement = UnityEngine.Input.GetAxis("Vertical");
 
             Vector2 movementDir = new Vector2 (xMovement, yMovement);
-            return movementDir.normalized;
+            return movementDir;
         }
     }
 }
