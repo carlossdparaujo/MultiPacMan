@@ -17,11 +17,9 @@ namespace MultiPacMan.Game {
             { "Sun Ship", Color.yellow }
         };
         private Dictionary<string, Color> remainingSchemes;
-        private PlayerCreationService service;
 
         public PlayerCreator (PlayerCreationService service) {
             this.remainingSchemes = new Dictionary<string, Color> (allSchemes);
-            this.service = service;
         }
 
         public PlayerCreator (PlayerCreationService service, List<IPlayer> players) : this (service) {
@@ -42,10 +40,6 @@ namespace MultiPacMan.Game {
             Vector2 position = SelectRandomPosition (playersPositions);
 
             return new PlayerCreationRequest (newPlayerId, name, color, position);
-        }
-
-        public void AllowPlayerCreation (PlayerCreationRequest request) {
-            service.SendCreationMessage (request);
         }
 
         private string SelectRandomScheme (Dictionary<string, Color> schemes) {

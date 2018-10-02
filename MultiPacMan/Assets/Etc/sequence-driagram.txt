@@ -1,0 +1,12 @@
+PhotonPlayerSetup->+PhotonPlayerSetup: base.StartSetup (stats, isMine)
+PhotonPlayerSetup->PhotonPlayerSetup: gameObject.AddComponent<PhotonLocalPlayer> ()
+note right of PhotonPlayerSetup: gameObject é a referência ao GameObject que\n contém o próprio componente. Ao chamarmos\n AddComponent para PhotonLocalPlayer, o\n adicionamos ao GameObject.
+PhotonPlayerSetup->+PhotonLocalPlayer: Setup ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<DesktopInputInterpreter> ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<LocalTurboController> ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<LocalMovementController> ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<PelletEater> ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<PelletCollisionDetector> ()
+PhotonLocalPlayer->PhotonLocalPlayer: gameObject.AddComponent<PhotonPlayerInfoSerializer> ()
+PhotonLocalPlayer->-PhotonPlayerSetup:
+

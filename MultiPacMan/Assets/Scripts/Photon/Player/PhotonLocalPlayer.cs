@@ -38,7 +38,7 @@ namespace MultiPacMan.Photon.Player {
                 int pelletId = pellet.Point.GetHashCode ();
 
                 RaiseEventOptions options = new RaiseEventOptions ();
-                options.CachingOption = EventCaching.DoNotCache;
+                options.CachingOption = EventCaching.AddToRoomCacheGlobal;
                 options.Receivers = ReceiverGroup.MasterClient;
 
                 PhotonNetwork.RaiseEvent ((byte) Events.EAT_PELLET_EVENT_CODE,

@@ -11,6 +11,7 @@ namespace MultiPacMan.Game {
     [RequireComponent (typeof (LevelCreator))]
     public class PlayerInitializationController : PunBehaviour {
 
+        private PhotonPlayerCreationService playerService;
         private PlayerCreator playerCreator;
         private LevelCreator levelCreator;
 
@@ -19,9 +20,8 @@ namespace MultiPacMan.Game {
             GameController.roomEnteredDelegate += RequestPlayerCreation;
             GameController.gameEndedDelegate += DestroyPlayers;
 
-            PhotonPlayerCreationService service = new PhotonPlayerCreationService ();
-
-            playerCreator = new PlayerCreator (service);
+            playerService = new PhotonPlayerCreationService ();
+			playerCreator = new PlayerCreator (playerService);
             levelCreator = this.gameObject.GetComponent<LevelCreator> ();
 
             RaiseEventOptions options = new RaiseEventOptions ();
@@ -35,12 +35,6 @@ namespace MultiPacMan.Game {
             PhotonNetwork.OnEventCall -= PhotonNetwork_OnEventCall;
             GameController.roomEnteredDelegate -= RequestPlayerCreation;
             GameController.gameEndedDelegate -= DestroyPlayers;
-        }
-
-        public void CreatePlayer (PlayerCreationRequest request) {
-            if (request != null) {
-                playerCreator.AllowPlayerCreation (request);
-            }
         }
 
         public void DestroyPlayers (PlayersStats playersStats) {
@@ -138,6 +132,12 @@ namespace MultiPacMan.Game {
             }
 
             return null;
+        }
+
+        private void CreatePlayer (PlayerCreationRequest request) {
+            if (request != null) {
+                playerService.CreatePlayer (request);
+            }
         }
 
         public override void OnMasterClientSwitched (PhotonPlayer newMasterClient) {
