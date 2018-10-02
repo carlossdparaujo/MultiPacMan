@@ -21,7 +21,6 @@ namespace MultiPacMan.Photon.Player.SerializersAndReceivers {
             }
         }
 
-        // Será que não é melhor fazer T ao invés de object?
         protected virtual object CompressPosition (Vector2 data) {
             return data;
         }
